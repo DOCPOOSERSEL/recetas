@@ -1,0 +1,17 @@
+{
+    "id": "pozole",
+    "titulo": "Pozole rojo",
+    "carta": "Para cuando necesites un abrazo en forma de plato.",
+    "receta": {
+        "ingredientes": [
+            "Maíz pozolero",
+            "Carne de puerco",
+            "Chile guajillo"
+        ],
+        "pasos": [
+            "Cuece el maíz",
+            "Prepara el caldo",
+            "Sirve y disfruta"
+        ]
+    }
+}
