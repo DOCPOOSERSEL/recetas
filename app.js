@@ -1528,7 +1528,9 @@ function renderizarContenidoDesbloqueado(receta, modo) {
 
         const pCarta = document.getElementById("modal-texto-carta");
         if (pCarta) {
-            pCarta.textContent = receta.carta || "";
+            pCarta.textContent = Array.isArray(receta.carta)
+                ? receta.carta.join("\n\n")
+                : String(receta.carta || "");
         }
     }
 }

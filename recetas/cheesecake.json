@@ -1,19 +1,30 @@
 {
     "id": "cheescake",
     "titulo": "Cheescake de Canela",
-    "pista": "Que aspecto de ti me hizo empezar a decirte Solecito",
-    "contraseña": "uv tpñsjtb",
-    "carta": "Para cuando necesites un abrazo en forma de plato.",
+    "pista": "¿Qué es lo que mas alegra mi dia y la razon por la que te digo solecito?",
+    "contraseña": "nj tpñsjtb",
+    "carta": [
+        "Para cuando necesites un abrazo en forma de plato."
+    ],
     "receta": {
         "ingredientes": [
-            "Maíz pozolero",
-            "Carne de puerco",
-            "Chile guajillo"
+            "180g de Mantequilla sin sal",
+            "150g de Azúcar glass (Altamente Opcional)",
+            "600g de Galletas de Canela",
+            "Media taza de crema para batir",
+            "660g de queso crema",
+            "1/4 de taza de leche tibia",
+            "1 cda de canela y/o vainilla"
         ],
         "pasos": [
-            "Cuece el maíz",
-            "Prepara el caldo",
-            "Sirve y disfruta"
+            "Machacar, aplastar o triturar las galletas hasta que queden como arena.",
+            "Derretir los 180g de mantequilla y dentro de un tazón revolverla con las galletas trituradas hasta que tengan una textura de arena mojada.",
+            "Agregar a la mezcla la leche y seguir mezclando hasta que quede todo bien integrado.",
+            "En un recipiente aparte mezclar el queso, la crema para batir, el azúcar, canela y vainilla.",
+            "Una vez te quede con una consistencia entre betún y helado parar.",
+            "Ahora solo emplatas, cubriendo el fondo y los bordes de la mezcla de galleta haciendo un tazón de galleta.",
+            "Alternativamente: En papeles/envoltorios para cupcake hacer lo mismo pero por cada uno.",
+            "Terminamos llenando el tazón con la otra mezcla y refrigerando por 3 hr."
         ]
     }
 }

@@ -316,10 +316,71 @@ body {
 }
 
 .modal-interior {
-    max-height: 84vh;
-    overflow-y: auto;
-    padding: 28px 26px 26px;
+    display: flex;
+    flex-direction: column;
+    max-height: 82vh;
+    padding: 28px 22px 26px 26px;
     border-radius: inherit;
+    overflow: hidden;
+}
+
+/* Scrollbar integrado al diseño para Receta (color de la estrella) y Carta (color de la flor) */
+.modal-contenido-receta,
+.carta-papel {
+    overflow-y: auto;
+    scroll-behavior: smooth;
+    padding-right: 10px;
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(in srgb, var(--estrella-tinte) 45%, transparent) rgba(255, 255, 255, 0.04);
+}
+
+.modal-tarjeta.modo-carta .carta-papel {
+    scrollbar-color: color-mix(in srgb, var(--flor-secundario) 45%, transparent)
+        color-mix(in srgb, var(--flor-luz) 20%, transparent);
+}
+
+.modal-contenido-receta::-webkit-scrollbar,
+.carta-papel::-webkit-scrollbar {
+    width: 6px;
+}
+
+.modal-contenido-receta::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.04);
+    border-radius: 999px;
+    margin: 6px 0;
+}
+
+.modal-contenido-receta::-webkit-scrollbar-thumb {
+    background: linear-gradient(
+        180deg,
+        color-mix(in srgb, var(--estrella-principal) 70%, transparent) 0%,
+        color-mix(in srgb, var(--estrella-tinte) 50%, transparent) 100%
+    );
+    border-radius: 999px;
+    box-shadow: 0 0 6px color-mix(in srgb, var(--estrella-tinte) 40%, transparent);
+}
+
+.modal-contenido-receta::-webkit-scrollbar-thumb:hover {
+    background: color-mix(in srgb, var(--estrella-tinte) 82%, transparent);
+}
+
+.carta-papel::-webkit-scrollbar-track {
+    background: color-mix(in srgb, var(--flor-luz) 22%, rgba(255, 255, 255, 0.5));
+    border-radius: 999px;
+    margin: 10px 0;
+}
+
+.carta-papel::-webkit-scrollbar-thumb {
+    background: linear-gradient(
+        180deg,
+        color-mix(in srgb, var(--flor-principal) 65%, transparent) 0%,
+        color-mix(in srgb, var(--flor-secundario) 70%, transparent) 100%
+    );
+    border-radius: 999px;
+}
+
+.carta-papel::-webkit-scrollbar-thumb:hover {
+    background: color-mix(in srgb, var(--flor-secundario) 88%, transparent);
 }
 
 /* Tema dinámico cuando el modal se abre desde una flor (toma los colores de esa flor) */
@@ -623,8 +684,16 @@ body {
 }
 
 /* Contenido desbloqueado: Receta */
+.modal-contenido-receta {
+    max-height: calc(82vh - 115px);
+}
+
 .receta-seccion {
     margin-top: 16px;
+}
+
+.receta-seccion:first-child {
+    margin-top: 4px;
 }
 
 .receta-seccion h3 {
@@ -644,9 +713,22 @@ body {
 }
 
 /* Contenido desbloqueado: Carta */
+.modal-contenido-carta {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+}
+
+.modal-contenido-carta[hidden],
+.modal-contenido-receta[hidden],
+.modal-vista-lock[hidden] {
+    display: none;
+}
+
 .carta-papel {
     margin-top: 8px;
-    padding: 20px 18px;
+    max-height: calc(82vh - 130px);
+    padding: 20px 16px 20px 18px;
     border-radius: 16px;
     background: rgba(255, 255, 255, 0.82);
     border: 1.5px solid color-mix(in srgb, var(--flor-secundario) 35%, #e6d2d8);
