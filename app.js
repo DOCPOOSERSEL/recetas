@@ -37,9 +37,24 @@ function hashTexto(texto) {
 }
 
 // --------------------------------------------------------------------------
+// 0. Ajuste de escala para pantallas anchas (PC, ej. 1807x813) y celulares:
+//    Garantiza que SIEMPRE se vea todo el alto (y: 0..1000, desde el sol hasta
+//    las puntas de las montañas) sin recortar arriba ni abajo y sin deformar.
+// --------------------------------------------------------------------------
+function actualizarEscalaPantallas() {
+    const svgs = document.querySelectorAll(".lienzo-svg");
+    const modo = window.innerWidth >= window.innerHeight ? "xMidYMid meet" : "xMidYMid slice";
+    for (const svg of svgs) {
+        svg.setAttribute("preserveAspectRatio", modo);
+    }
+}
+
+window.addEventListener("resize", actualizarEscalaPantallas);
+
+// --------------------------------------------------------------------------
 // 1. Estrellas decorativas de fondo (Escena 1: Noche)
 // --------------------------------------------------------------------------
-function renderizarEstrellasFondo(cantidad = 140) {
+function renderizarEstrellasFondo(cantidad = 320) {
     const capa = document.getElementById("capa-estrellas-fondo");
     if (!capa) return;
 
@@ -49,7 +64,7 @@ function renderizarEstrellasFondo(cantidad = 140) {
 
     let creadas = 0;
     while (creadas < cantidad) {
-        const x = rand() * 1000;
+        const x = -850 + rand() * 2700;
         const y = rand() * 910;
 
         const distLuna = Math.hypot(x - CENTRO_LUNA.x, y - CENTRO_LUNA.y);
@@ -334,25 +349,37 @@ function renderizarFloresMontanasNoche() {
         "#d8b4e2"  // lavanda
     ];
 
-    // Segmentos exactos de path.cumbre-lejana
+    // Segmentos exactos de path.cumbre-lejana (-1000 a 2000)
     const segLejana = [
+        [-1000, 938, -840, 884, -680, 936],
+        [-680, 936, -510, 880, -340, 934],
+        [-340, 934, -175, 882, -20, 948],
         [-20, 948, 95, 892, 215, 935],
         [215, 935, 345, 878, 485, 930],
         [485, 930, 635, 872, 780, 926],
-        [780, 926, 905, 888, 1020, 938]
+        [780, 926, 905, 888, 1020, 938],
+        [1020, 938, 1185, 880, 1350, 934],
+        [1350, 934, 1520, 884, 1690, 936],
+        [1690, 936, 1845, 888, 2000, 940]
     ];
 
-    // Segmentos exactos de path.cumbre-frente
+    // Segmentos exactos de path.cumbre-frente (-1000 a 2000)
     const segFrente = [
+        [-1000, 960, -800, 910, -600, 956],
+        [-600, 956, -410, 906, -220, 956],
+        [-220, 956, -115, 916, -20, 968],
         [-20, 968, 150, 916, 310, 956],
         [310, 956, 505, 902, 685, 952],
-        [685, 952, 845, 914, 1020, 958]
+        [685, 952, 845, 914, 1020, 958],
+        [1020, 958, 1210, 906, 1400, 954],
+        [1400, 954, 1590, 912, 1780, 956],
+        [1780, 956, 1890, 920, 2000, 960]
     ];
 
     // 1) Florecitas en la cumbre lejana
     const floresLejanas = [];
-    for (let i = 0; i < 24; i++) {
-        const x = 25 + rand() * 950;
+    for (let i = 0; i < 60; i++) {
+        const x = -820 + rand() * 2640;
         const yCresta = evaluarCrestaMontana(x, segLejana);
         const y = yCresta + 3 + rand() * 24;
         const escala = 0.36 + rand() * 0.14;
@@ -376,8 +403,8 @@ function renderizarFloresMontanasNoche() {
 
     // 2) Florecitas en la cumbre frontal
     const floresFrente = [];
-    for (let i = 0; i < 32; i++) {
-        const x = 20 + rand() * 960;
+    for (let i = 0; i < 78; i++) {
+        const x = -820 + rand() * 2640;
         const yCresta = evaluarCrestaMontana(x, segFrente);
         const y = Math.min(996, yCresta + 4 + rand() * 38);
         const escala = 0.46 + ((y - 920) / 80) * 0.22;
@@ -404,15 +431,15 @@ function renderizarFloresMontanasNoche() {
 // 3. Escena 2 (Campo de día: pasto de fondo + flores decorativas + pasto de frente)
 // --------------------------------------------------------------------------
 function renderizarPaisajeCampo() {
-    // 3.1a: Briznas de pasto de fondo (verdes soleados distribuidos por la pradera)
+    // 3.1a: Briznas de pasto de fondo (verdes soleados distribuidos por toda la pradera ancha)
     const capaPastoFondo = document.getElementById("capa-pasto-fondo");
     if (capaPastoFondo) {
         const randPasto = crearPRNG(445566);
         const fragPastoFondo = document.createDocumentFragment();
         const coloresPasto = ["#2e7037", "#3d8746", "#27612f"];
 
-        for (let i = 0; i < 160; i++) {
-            const x = randPasto() * 1000;
+        for (let i = 0; i < 360; i++) {
+            const x = -850 + randPasto() * 2700;
             const y = 480 + randPasto() * 480;
             const escala = 0.55 + ((y - 480) / 520) * 0.9;
             const alto = (16 + randPasto() * 18) * escala;
@@ -432,19 +459,22 @@ function renderizarPaisajeCampo() {
         capaPastoFondo.replaceChildren(fragPastoFondo);
     }
 
-    // 3.1b: Pasto de frente (siluetas verdes más grandes en el borde inferior)
+    // 3.1b: Pasto de frente (siluetas verdes más grandes en el borde inferior de -1000 a 2000)
     const capaPastoFrente = document.getElementById("capa-pasto-frente");
     if (capaPastoFrente) {
         const randFrente = crearPRNG(778899);
         const fragFrente = document.createDocumentFragment();
 
         const base = document.createElementNS(SVG_NS, "path");
-        base.setAttribute("d", "M -20,965 Q 250,945 500,960 T 1020,950 L 1020,1020 L -20,1020 Z");
+        base.setAttribute(
+            "d",
+            "M -1000,960 Q -500,945 -20,965 Q 250,945 500,960 T 1020,950 Q 1500,945 2000,960 L 2000,1020 L -1000,1020 Z"
+        );
         base.setAttribute("fill", "url(#grad-pasto-frente)");
         fragFrente.appendChild(base);
 
-        for (let i = 0; i < 85; i++) {
-            const x = randFrente() * 1020 - 10;
+        for (let i = 0; i < 200; i++) {
+            const x = -850 + randFrente() * 2700;
             const yBase = 985 + randFrente() * 25;
             const alto = 45 + randFrente() * 65;
             const curva = (randFrente() - 0.5) * 42;
@@ -470,7 +500,7 @@ function renderizarPaisajeCampo() {
     renderizarFloresDecorativasCampo();
 }
 
-function renderizarFloresDecorativasCampo(cantidadPradera = 95) {
+function renderizarFloresDecorativasCampo(cantidadPradera = 230) {
     const capaColinaLejana = document.getElementById("capa-flores-colina-lejana");
     const capaColinaMedia = document.getElementById("capa-flores-colina-media");
     const capaFloresFondo = document.getElementById("capa-flores-fondo");
@@ -485,18 +515,22 @@ function renderizarFloresDecorativasCampo(cantidadPradera = 95) {
         "#b8e1ff"  // celeste flor
     ];
 
-    // A) Flores pequeñitas en la cordillera más lejana del campo
-    // Path: M -20,430 Q 150,340 340,395 T 710,375 T 1020,415
-    // Puntos de control reflejados (T): C2 = (530, 450), C3 = (890, 300)
+    // A) Flores pequeñitas en la cordillera más lejana del campo (-1000 a 2000)
     if (capaColinaLejana) {
         const segColinaLejana = [
+            [-1000, 415, -820, 348, -650, 398],
+            [-650, 398, -480, 345, -320, 402],
+            [-320, 402, -170, 350, -20, 430],
             [-20, 430, 150, 340, 340, 395],
             [340, 395, 530, 450, 710, 375],
-            [710, 375, 890, 300, 1020, 415]
+            [710, 375, 890, 300, 1020, 415],
+            [1020, 415, 1190, 348, 1360, 400],
+            [1360, 400, 1530, 348, 1700, 402],
+            [1700, 402, 1850, 358, 2000, 415]
         ];
         const floresLejanas = [];
-        for (let i = 0; i < 42; i++) {
-            const x = 15 + rand() * 970;
+        for (let i = 0; i < 105; i++) {
+            const x = -820 + rand() * 2640;
             const yCresta = evaluarCrestaMontana(x, segColinaLejana);
             const y = yCresta + 5 + rand() * 38;
             const escala = 0.24 + rand() * 0.11;
@@ -519,18 +553,22 @@ function renderizarFloresDecorativasCampo(cantidadPradera = 95) {
         capaColinaLejana.replaceChildren(fragLejana);
     }
 
-    // B) Flores en las colinas intermedias del fondo del campo
-    // Path: M -20,455 Q 210,390 460,445 T 880,410 Q 960,420 1020,440
-    // Punto de control reflejado (T): C2 = (710, 500)
+    // B) Flores en las colinas intermedias del fondo del campo (-1000 a 2000)
     if (capaColinaMedia) {
         const segColinaMedia = [
+            [-1000, 445, -780, 392, -560, 440],
+            [-560, 440, -360, 395, -180, 442],
+            [-180, 442, -100, 410, -20, 455],
             [-20, 455, 210, 390, 460, 445],
             [460, 445, 710, 500, 880, 410],
-            [880, 410, 960, 420, 1020, 440]
+            [880, 410, 960, 420, 1020, 440],
+            [1020, 440, 1220, 392, 1420, 440],
+            [1420, 440, 1620, 395, 1820, 442],
+            [1820, 442, 1910, 418, 2000, 445]
         ];
         const floresMedias = [];
-        for (let i = 0; i < 52; i++) {
-            const x = 15 + rand() * 970;
+        for (let i = 0; i < 125; i++) {
+            const x = -820 + rand() * 2640;
             const yCresta = evaluarCrestaMontana(x, segColinaMedia);
             const y = yCresta + 5 + rand() * 36;
             const escala = 0.32 + rand() * 0.12;
@@ -553,10 +591,10 @@ function renderizarFloresDecorativasCampo(cantidadPradera = 95) {
         capaColinaMedia.replaceChildren(fragMedia);
     }
 
-    // C) Flores en la pradera principal
+    // C) Flores en la pradera principal (-820 a 1820)
     const flores = [];
     for (let i = 0; i < cantidadPradera; i++) {
-        const x = 15 + rand() * 970;
+        const x = -820 + rand() * 2640;
         const t = Math.pow(rand(), 1.15);
         const y = 472 + t * 478;
         const escala = 0.42 + ((y - 472) / 478) * 0.65;
@@ -1681,6 +1719,7 @@ async function cargarRecetas() {
 }
 
 async function iniciarApp() {
+    actualizarEscalaPantallas();
     renderizarEstrellasFondo();
     renderizarFloresMontanasNoche();
     renderizarPaisajeCampo();

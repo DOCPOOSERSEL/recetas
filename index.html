@@ -5,7 +5,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <title>Nuestro recetario</title>
-    <link rel="stylesheet" href="style.css?v=3" />
+    <link rel="stylesheet" href="style.css?v=4" />
 </head>
 
 <body>
@@ -71,8 +71,8 @@
                     </clipPath>
                 </defs>
 
-                <!-- 1. Fondo del cielo -->
-                <rect width="1000" height="1000" fill="url(#grad-cielo-noche)" />
+                <!-- 1. Fondo del cielo (extendido de -1000 a 2000 para cubrir pantallas anchas como 1807x813) -->
+                <rect x="-1000" y="0" width="3000" height="1000" fill="url(#grad-cielo-noche)" />
 
                 <!-- 2. Estrellas decorativas de fondo -->
                 <g id="capa-estrellas-fondo" aria-hidden="true"></g>
@@ -121,22 +121,22 @@
                     aria-label="Ir al campo de flores"
                 >
                     <title>Bajar al campo de flores</title>
-                    <!-- Área de toque ampliada sobre las cumbres -->
-                    <rect x="0" y="870" width="1000" height="130" fill="transparent" />
+                    <!-- Área de toque ampliada sobre las cumbres (abarca todo el ancho en PC) -->
+                    <rect x="-1000" y="865" width="3000" height="145" fill="transparent" />
 
-                    <!-- Puntas de la cordillera lejana asomándose abajo -->
+                    <!-- Puntas de la cordillera lejana asomándose abajo (-1000 a 2000) -->
                     <path
                         class="cumbre-lejana"
-                        d="M -20,1010 L -20,948 Q 95,892 215,935 Q 345,878 485,930 Q 635,872 780,926 Q 905,888 1020,938 L 1020,1010 Z"
+                        d="M -1000,1010 L -1000,938 Q -840,884 -680,936 Q -510,880 -340,934 Q -175,882 -20,948 Q 95,892 215,935 Q 345,878 485,930 Q 635,872 780,926 Q 905,888 1020,938 Q 1185,880 1350,934 Q 1520,884 1690,936 Q 1845,888 2000,940 L 2000,1010 Z"
                         fill="url(#grad-punta-montana-lejana)"
                     />
                     <!-- Florecitas sobre la cumbre lejana nocturna -->
                     <g id="capa-flores-cumbre-lejana" class="cumbre-lejana" aria-hidden="true"></g>
 
-                    <!-- Puntas de las colinas más cercanas -->
+                    <!-- Puntas de las colinas más cercanas (-1000 a 2000) -->
                     <path
                         class="cumbre-frente"
-                        d="M -20,1015 L -20,968 Q 150,916 310,956 Q 505,902 685,952 Q 845,914 1020,958 L 1020,1015 Z"
+                        d="M -1000,1015 L -1000,960 Q -800,910 -600,956 Q -410,906 -220,956 Q -115,916 -20,968 Q 150,916 310,956 Q 505,902 685,952 Q 845,914 1020,958 Q 1210,906 1400,954 Q 1590,912 1780,956 Q 1890,920 2000,960 L 2000,1015 Z"
                         fill="url(#grad-punta-montana-frente)"
                     />
                     <!-- Florecitas sobre la cumbre frontal nocturna -->
@@ -211,13 +211,15 @@
                     </linearGradient>
                 </defs>
 
-                <!-- 1. Cielo de día -->
-                <rect width="1000" height="600" fill="url(#grad-cielo-campo)" />
-                <ellipse cx="500" cy="360" rx="640" ry="260" fill="url(#grad-bruma-horizonte)" />
+                <!-- 1. Cielo de día (extendido de -1000 a 2000 para pantallas anchas como 1807x813) -->
+                <rect x="-1000" y="0" width="3000" height="600" fill="url(#grad-cielo-campo)" />
+                <ellipse cx="500" cy="360" rx="1350" ry="260" fill="url(#grad-bruma-horizonte)" />
 
                 <!-- Nubes suaves decorativas -->
                 <g id="capa-nubes-campo" aria-hidden="true" opacity="0.65">
                     <g fill="#ffffff">
+                        <ellipse cx="-340" cy="165" rx="74" ry="22" />
+                        <ellipse cx="-370" cy="155" rx="42" ry="24" />
                         <ellipse cx="210" cy="185" rx="68" ry="22" />
                         <ellipse cx="185" cy="175" rx="38" ry="24" />
                         <ellipse cx="235" cy="177" rx="34" ry="20" />
@@ -225,6 +227,8 @@
                         <ellipse cx="790" cy="150" rx="76" ry="24" />
                         <ellipse cx="765" cy="138" rx="44" ry="26" />
                         <ellipse cx="820" cy="142" rx="36" ry="21" />
+                        <ellipse cx="1340" cy="175" rx="72" ry="22" />
+                        <ellipse cx="1310" cy="164" rx="42" ry="24" />
                     </g>
                 </g>
 
@@ -262,23 +266,23 @@
 
                 <!-- 2. Colinas lejanas (delante del sol para que al ocultarse baje detrás de ellas) -->
                 <g id="capa-colinas" aria-hidden="true">
-                    <!-- Cordillera más lejana -->
+                    <!-- Cordillera más lejana (-1000 a 2000) -->
                     <path
-                        d="M -20,430 Q 150,340 340,395 T 710,375 T 1020,415 L 1020,600 L -20,600 Z"
+                        d="M -1000,415 Q -820,348 -650,398 Q -480,345 -320,402 Q -170,350 -20,430 Q 150,340 340,395 T 710,375 T 1020,415 Q 1190,348 1360,400 Q 1530,348 1700,402 Q 1850,358 2000,415 L 2000,600 L -1000,600 Z"
                         fill="url(#grad-colina-lejana)"
                     />
                     <g id="capa-flores-colina-lejana" aria-hidden="true"></g>
 
-                    <!-- Colinas intermedias -->
+                    <!-- Colinas intermedias (-1000 a 2000) -->
                     <path
-                        d="M -20,455 Q 210,390 460,445 T 880,410 Q 960,420 1020,440 L 1020,650 L -20,650 Z"
+                        d="M -1000,445 Q -780,392 -560,440 Q -360,395 -180,442 Q -100,410 -20,455 Q 210,390 460,445 T 880,410 Q 960,420 1020,440 Q 1220,392 1420,440 Q 1620,395 1820,442 Q 1910,418 2000,445 L 2000,650 L -1000,650 Z"
                         fill="url(#grad-colina-media)"
                     />
                     <g id="capa-flores-colina-media" aria-hidden="true"></g>
 
-                    <!-- Loma principal de la pradera (~60% inferior del lienzo) -->
+                    <!-- Loma principal de la pradera (~60% inferior del lienzo, -1000 a 2000) -->
                     <path
-                        d="M -20,475 Q 260,435 530,470 T 1020,460 L 1020,1020 L -20,1020 Z"
+                        d="M -1000,468 Q -510,435 -20,475 Q 260,435 530,470 T 1020,460 Q 1510,435 2000,470 L 2000,1020 L -1000,1020 Z"
                         fill="url(#grad-pradera)"
                     />
                 </g>
@@ -408,7 +412,7 @@
         </div>
     </main>
 
-    <script src="app.js?v=3"></script>
+    <script src="app.js?v=4"></script>
 </body>
 
 </html>
