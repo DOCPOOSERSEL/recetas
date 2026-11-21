@@ -1257,6 +1257,38 @@ let estadoModalActual = {
     modo: "receta" // "receta" | "carta"
 };
 
+let audioCartaActual = null;
+
+function detenerCancionCarta() {
+    if (audioCartaActual) {
+        audioCartaActual.pause();
+        audioCartaActual.currentTime = 0;
+        audioCartaActual = null;
+    }
+}
+
+function reproducirCancionCarta(receta) {
+    detenerCancionCarta();
+
+    const nombreCancion = String(
+        receta.Cancion ?? receta.cancion ?? receta.canción ?? receta.Canción ?? ""
+    ).trim();
+    if (!nombreCancion) return;
+
+    const archivo = nombreCancion.toLowerCase().endsWith(".mp3")
+        ? nombreCancion
+        : `${nombreCancion}.mp3`;
+
+    const audio = new Audio(`canciones/${archivo}`);
+    audio.loop = true;
+    audio.volume = 0.85;
+    audioCartaActual = audio;
+
+    audio.play().catch(err => {
+        console.warn("No se pudo reproducir el audio de la carta:", err);
+    });
+}
+
 const MENSAJES_ERROR_TIERNOS = [
     "Casi, mi amor... lee la pista e inténtalo otra vez.",
     "Esa no es la frase secreta... piensa un poquito más.",
@@ -1532,6 +1564,9 @@ function renderizarContenidoDesbloqueado(receta, modo) {
                 ? receta.carta.join("\n\n")
                 : String(receta.carta || "");
         }
+
+        // Reproduce la canción del JSON únicamente cuando se desbloquea la Carta
+        reproducirCancionCarta(receta);
     }
 }
 
@@ -1551,6 +1586,7 @@ function abrirModal(receta, modo) {
 
     if (!overlay || !tarjeta) return;
 
+    detenerCancionCarta();
     estadoModalActual = { receta, modo };
 
     const esCarta = modo === "carta";
@@ -1620,6 +1656,7 @@ function abrirModal(receta, modo) {
 }
 
 function cerrarModal() {
+    detenerCancionCarta();
     const overlay = document.getElementById("modal-overlay");
     if (overlay) overlay.hidden = true;
 }
