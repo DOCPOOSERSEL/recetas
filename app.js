@@ -1659,13 +1659,13 @@ function configurarModal() {
 // --------------------------------------------------------------------------
 async function cargarRecetas() {
     try {
-        const respIndex = await fetch("recetas/index.json");
+        const respIndex = await fetch("recetas/index.json", { cache: "no-cache" });
         if (!respIndex.ok) throw new Error("No se pudo leer recetas/index.json");
         const listaArchivos = await respIndex.json();
 
         const promesas = listaArchivos.map(async nombre => {
             const archivo = nombre.endsWith(".json") ? nombre : `${nombre}.json`;
-            const resp = await fetch(`recetas/${archivo}`);
+            const resp = await fetch(`recetas/${archivo}`, { cache: "no-cache" });
             if (!resp.ok) throw new Error(`No se encontró recetas/${archivo}`);
             return resp.json();
         });
