@@ -1608,7 +1608,6 @@ function abrirModal(receta, modo) {
 
         if (inputPass) {
             inputPass.value = "";
-            inputPass.type = "password";
             setTimeout(() => inputPass.focus(), 60);
         }
     }
@@ -1651,15 +1650,6 @@ function configurarModal() {
             cerrarModal();
         }
     });
-
-    // Botón para ver/ocultar lo que escribe
-    if (btnVer && inputPass) {
-        btnVer.addEventListener("click", () => {
-            const esPass = inputPass.type === "password";
-            inputPass.type = esPass ? "text" : "password";
-            inputPass.focus();
-        });
-    }
 
     // Validación de la contraseña con Cifrado César ROT1
     if (form && inputPass) {
