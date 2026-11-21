@@ -3,16 +3,411 @@
 
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <title>Nuestro recetario</title>
     <link rel="stylesheet" href="style.css" />
 </head>
 
 <body>
     <main id="app">
-        <h1>Hola mundo 🌙</h1>
-        <p id="estado">Cargando...</p>
+        <!-- ================================================================
+             Escena 1: Noche estrellada
+             ================================================================ -->
+        <section id="escena-noche" class="escena activa" aria-label="Noche estrellada">
+            <svg
+                id="svg-noche"
+                class="lienzo-svg"
+                viewBox="0 0 1000 1000"
+                preserveAspectRatio="xMidYMid slice"
+                role="img"
+                aria-label="Cielo nocturno con luna y estrellas de recetas"
+            >
+                <defs>
+                    <!-- Gradiente del cielo nocturno: azul marino profundo a morado oscuro -->
+                    <linearGradient id="grad-cielo-noche" x1="0%" y1="0%" x2="25%" y2="100%">
+                        <stop offset="0%" stop-color="#060919" />
+                        <stop offset="45%" stop-color="#0d1536" />
+                        <stop offset="80%" stop-color="#1a1640" />
+                        <stop offset="100%" stop-color="#271947" />
+                    </linearGradient>
+
+                    <!-- Resplandor ambiental alrededor del centro lunar -->
+                    <radialGradient id="grad-halo-luna" cx="50%" cy="50%" r="50%">
+                        <stop offset="0%" stop-color="#fff6d6" stop-opacity="0.38" />
+                        <stop offset="35%" stop-color="#d8dcff" stop-opacity="0.16" />
+                        <stop offset="70%" stop-color="#9aa8ff" stop-opacity="0.05" />
+                        <stop offset="100%" stop-color="#9aa8ff" stop-opacity="0" />
+                    </radialGradient>
+
+                    <!-- Superficie de la luna llena -->
+                    <radialGradient id="grad-luna" cx="38%" cy="35%" r="65%">
+                        <stop offset="0%" stop-color="#fffdf5" />
+                        <stop offset="55%" stop-color="#f6eed5" />
+                        <stop offset="88%" stop-color="#e3d5b3" />
+                        <stop offset="100%" stop-color="#cbb994" />
+                    </radialGradient>
+
+                    <!-- Halo luminoso para cada estrella-receta -->
+                    <radialGradient id="grad-halo-estrella" cx="50%" cy="50%" r="50%">
+                        <stop offset="0%" stop-color="#fff9df" stop-opacity="0.9" />
+                        <stop offset="40%" stop-color="#ffe596" stop-opacity="0.35" />
+                        <stop offset="100%" stop-color="#ffe596" stop-opacity="0" />
+                    </radialGradient>
+
+                    <!-- Gradientes para las puntas de las montañas abajo de la escena de la luna -->
+                    <linearGradient id="grad-punta-montana-lejana" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" stop-color="#2b2450" />
+                        <stop offset="100%" stop-color="#181734" />
+                    </linearGradient>
+
+                    <linearGradient id="grad-punta-montana-frente" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" stop-color="#1d2c45" />
+                        <stop offset="100%" stop-color="#0e1828" />
+                    </linearGradient>
+
+                    <!-- Recorte circular de la luna para que los cráteres y sombras no salgan del disco -->
+                    <clipPath id="clip-luna">
+                        <circle cx="500" cy="500" r="110" />
+                    </clipPath>
+                </defs>
+
+                <!-- 1. Fondo del cielo -->
+                <rect width="1000" height="1000" fill="url(#grad-cielo-noche)" />
+
+                <!-- 2. Estrellas decorativas de fondo -->
+                <g id="capa-estrellas-fondo" aria-hidden="true"></g>
+
+                <!-- 3. Luna central (500, 500) con halo difuso y cráteres suaves -->
+                <g id="capa-luna" class="luna-central" aria-hidden="true">
+                    <circle cx="500" cy="500" r="320" fill="url(#grad-halo-luna)" />
+                    <circle cx="500" cy="500" r="165" fill="url(#grad-halo-luna)" />
+                    <circle cx="500" cy="500" r="122" fill="#fff9e2" opacity="0.14" />
+                    <circle cx="500" cy="500" r="110" fill="url(#grad-luna)" />
+
+                    <g clip-path="url(#clip-luna)">
+                        <ellipse cx="460" cy="465" rx="42" ry="30" transform="rotate(-18 460 465)" fill="#cbb993" opacity="0.28" />
+                        <ellipse cx="525" cy="445" rx="28" ry="22" transform="rotate(20 525 445)" fill="#cbb993" opacity="0.22" />
+                        <ellipse cx="485" cy="535" rx="48" ry="28" transform="rotate(10 485 535)" fill="#c5b28b" opacity="0.24" />
+                        <ellipse cx="548" cy="510" rx="24" ry="34" transform="rotate(-12 548 510)" fill="#c5b28b" opacity="0.2" />
+
+                        <circle cx="445" cy="445" r="16" fill="#c7b58e" opacity="0.35" />
+                        <circle cx="447" cy="447" r="13" fill="#dfd1b0" opacity="0.35" />
+                        <circle cx="538" cy="468" r="11" fill="#c2af87" opacity="0.38" />
+                        <circle cx="539" cy="469" r="8.5" fill="#e5d7b8" opacity="0.3" />
+                        <circle cx="472" cy="548" r="19" fill="#bfa980" opacity="0.32" />
+                        <circle cx="474" cy="550" r="15.5" fill="#dfd2b4" opacity="0.3" />
+                        <circle cx="545" cy="548" r="9" fill="#c2af87" opacity="0.36" />
+                        <circle cx="425" cy="508" r="11" fill="#c2af87" opacity="0.3" />
+                        <circle cx="505" cy="488" r="7" fill="#c2af87" opacity="0.28" />
+                        <circle cx="512" cy="415" r="8" fill="#c2af87" opacity="0.25" />
+
+                        <path
+                            d="M 500,390 A 110,110 0 0,1 610,500 A 110,110 0 0,1 390,500 A 118,108 0 0,0 595,475 A 112,110 0 0,0 500,390 Z"
+                            fill="#9e8a63"
+                            opacity="0.16"
+                        />
+                    </g>
+                </g>
+
+                <!-- 4. Estrellas-receta -->
+                <g id="capa-estrellas-receta"></g>
+
+                <!-- 5. Puntas de las montañas abajo (click para que se oculte la luna y amanezca en el campo) -->
+                <g
+                    id="nav-ir-campo"
+                    class="nav-montanas-abajo"
+                    role="button"
+                    tabindex="0"
+                    aria-label="Ir al campo de flores"
+                >
+                    <title>Bajar al campo de flores</title>
+                    <!-- Área de toque ampliada sobre las cumbres -->
+                    <rect x="0" y="870" width="1000" height="130" fill="transparent" />
+
+                    <!-- Puntas de la cordillera lejana asomándose abajo -->
+                    <path
+                        class="cumbre-lejana"
+                        d="M -20,1010 L -20,948 Q 95,892 215,935 Q 345,878 485,930 Q 635,872 780,926 Q 905,888 1020,938 L 1020,1010 Z"
+                        fill="url(#grad-punta-montana-lejana)"
+                    />
+                    <!-- Florecitas sobre la cumbre lejana nocturna -->
+                    <g id="capa-flores-cumbre-lejana" class="cumbre-lejana" aria-hidden="true"></g>
+
+                    <!-- Puntas de las colinas más cercanas -->
+                    <path
+                        class="cumbre-frente"
+                        d="M -20,1015 L -20,968 Q 150,916 310,956 Q 505,902 685,952 Q 845,914 1020,958 L 1020,1015 Z"
+                        fill="url(#grad-punta-montana-frente)"
+                    />
+                    <!-- Florecitas sobre la cumbre frontal nocturna -->
+                    <g id="capa-flores-cumbre-frente" class="cumbre-frente" aria-hidden="true"></g>
+                </g>
+            </svg>
+        </section>
+
+        <!-- ================================================================
+             Escena 2: Campo de flores (De día, con Sol interactivo)
+             ================================================================ -->
+        <section id="escena-campo" class="escena" aria-label="Campo de flores">
+            <svg
+                id="svg-campo"
+                class="lienzo-svg"
+                viewBox="0 0 1000 1000"
+                preserveAspectRatio="xMidYMid slice"
+                role="img"
+                aria-label="Campo soleado con flores de cartas"
+            >
+                <defs>
+                    <!-- Cielo soleado de día -->
+                    <linearGradient id="grad-cielo-campo" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" stop-color="#3b97e3" />
+                        <stop offset="40%" stop-color="#76c4f5" />
+                        <stop offset="78%" stop-color="#bce6ff" />
+                        <stop offset="100%" stop-color="#fff3cc" />
+                    </linearGradient>
+
+                    <!-- Resplandor cálido del sol sobre el horizonte -->
+                    <radialGradient id="grad-bruma-horizonte" cx="50%" cy="35%" r="60%">
+                        <stop offset="0%" stop-color="#fff6c4" stop-opacity="0.55" />
+                        <stop offset="50%" stop-color="#ffe7a0" stop-opacity="0.2" />
+                        <stop offset="100%" stop-color="#ffffff" stop-opacity="0" />
+                    </radialGradient>
+
+                    <!-- Halo y disco del Sol -->
+                    <radialGradient id="grad-halo-sol" cx="50%" cy="50%" r="50%">
+                        <stop offset="0%" stop-color="#fff5b8" stop-opacity="0.75" />
+                        <stop offset="45%" stop-color="#ffdb6e" stop-opacity="0.28" />
+                        <stop offset="100%" stop-color="#ffd04d" stop-opacity="0" />
+                    </radialGradient>
+
+                    <radialGradient id="grad-disco-sol" cx="40%" cy="38%" r="65%">
+                        <stop offset="0%" stop-color="#ffffff" />
+                        <stop offset="45%" stop-color="#fff4ad" />
+                        <stop offset="100%" stop-color="#ffca3a" />
+                    </radialGradient>
+
+                    <!-- Colinas lejanas de día (3 planos de verdes soleados) -->
+                    <linearGradient id="grad-colina-lejana" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" stop-color="#78b596" />
+                        <stop offset="100%" stop-color="#538f73" />
+                    </linearGradient>
+
+                    <linearGradient id="grad-colina-media" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" stop-color="#5ca36c" />
+                        <stop offset="100%" stop-color="#3f7f50" />
+                    </linearGradient>
+
+                    <!-- Pradera principal soleada donde nacen las flores -->
+                    <linearGradient id="grad-pradera" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" stop-color="#4d9852" />
+                        <stop offset="45%" stop-color="#387d3f" />
+                        <stop offset="100%" stop-color="#225729" />
+                    </linearGradient>
+
+                    <!-- Pasto de primer plano -->
+                    <linearGradient id="grad-pasto-frente" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" stop-color="#2d6b34" />
+                        <stop offset="100%" stop-color="#17401d" />
+                    </linearGradient>
+                </defs>
+
+                <!-- 1. Cielo de día -->
+                <rect width="1000" height="600" fill="url(#grad-cielo-campo)" />
+                <ellipse cx="500" cy="360" rx="640" ry="260" fill="url(#grad-bruma-horizonte)" />
+
+                <!-- Nubes suaves decorativas -->
+                <g id="capa-nubes-campo" aria-hidden="true" opacity="0.65">
+                    <g fill="#ffffff">
+                        <ellipse cx="210" cy="185" rx="68" ry="22" />
+                        <ellipse cx="185" cy="175" rx="38" ry="24" />
+                        <ellipse cx="235" cy="177" rx="34" ry="20" />
+
+                        <ellipse cx="790" cy="150" rx="76" ry="24" />
+                        <ellipse cx="765" cy="138" rx="44" ry="26" />
+                        <ellipse cx="820" cy="142" rx="36" ry="21" />
+                    </g>
+                </g>
+
+                <!-- Sol interactivo: al darle click se oculta detrás de las montañas y te sube al cielo nocturno -->
+                <g
+                    id="nav-ir-noche"
+                    class="sol-regreso"
+                    role="button"
+                    tabindex="0"
+                    aria-label="Ocultar el sol y subir a la noche estrellada"
+                >
+                    <title>Dar click al sol para que anochezca y subir al cielo</title>
+                    <!-- Halo exterior amplio -->
+                    <circle cx="500" cy="155" r="150" fill="url(#grad-halo-sol)" />
+                    <circle cx="500" cy="155" r="95" fill="url(#grad-halo-sol)" />
+
+                    <!-- Área de toque cómoda -->
+                    <circle cx="500" cy="155" r="85" fill="transparent" />
+
+                    <!-- Rayos suaves del sol -->
+                    <g class="sol-rayos" aria-hidden="true">
+                        <line x1="500" y1="62" x2="500" y2="82" />
+                        <line x1="500" y1="228" x2="500" y2="248" />
+                        <line x1="407" y1="155" x2="427" y2="155" />
+                        <line x1="573" y1="155" x2="593" y2="155" />
+                        <line x1="434" y1="89" x2="448" y2="103" />
+                        <line x1="552" y1="207" x2="566" y2="221" />
+                        <line x1="566" y1="89" x2="552" y2="103" />
+                        <line x1="448" y1="207" x2="434" y2="221" />
+                    </g>
+
+                    <!-- Disco principal del sol -->
+                    <circle class="sol-disco" cx="500" cy="155" r="56" fill="url(#grad-disco-sol)" />
+                </g>
+
+                <!-- 2. Colinas lejanas (delante del sol para que al ocultarse baje detrás de ellas) -->
+                <g id="capa-colinas" aria-hidden="true">
+                    <!-- Cordillera más lejana -->
+                    <path
+                        d="M -20,430 Q 150,340 340,395 T 710,375 T 1020,415 L 1020,600 L -20,600 Z"
+                        fill="url(#grad-colina-lejana)"
+                    />
+                    <g id="capa-flores-colina-lejana" aria-hidden="true"></g>
+
+                    <!-- Colinas intermedias -->
+                    <path
+                        d="M -20,455 Q 210,390 460,445 T 880,410 Q 960,420 1020,440 L 1020,650 L -20,650 Z"
+                        fill="url(#grad-colina-media)"
+                    />
+                    <g id="capa-flores-colina-media" aria-hidden="true"></g>
+
+                    <!-- Loma principal de la pradera (~60% inferior del lienzo) -->
+                    <path
+                        d="M -20,475 Q 260,435 530,470 T 1020,460 L 1020,1020 L -20,1020 Z"
+                        fill="url(#grad-pradera)"
+                    />
+                </g>
+
+                <!-- 3. Pasto de fondo -->
+                <g id="capa-pasto-fondo" aria-hidden="true"></g>
+
+                <!-- 4. Flores decorativas y flores-receta -->
+                <g id="capa-flores-fondo" aria-hidden="true"></g>
+                <g id="capa-flores-receta"></g>
+
+                <!-- 5. Pasto de frente -->
+                <g id="capa-pasto-frente" aria-hidden="true"></g>
+            </svg>
+        </section>
+
+        <!-- ================================================================
+             Paso 3.4: Modal compartido (Estrella -> Receta | Flor -> Carta)
+             ================================================================ -->
+        <div
+            id="modal-overlay"
+            class="modal-overlay"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="modal-titulo"
+            hidden
+        >
+            <div id="modal-tarjeta" class="modal-tarjeta">
+                <!-- Marco de constelación que rodea todo el borde de la UI en modo Receta -->
+                <div id="modal-constelacion" class="modal-constelacion-marco" aria-hidden="true" hidden>
+                    <svg
+                        id="modal-constelacion-svg"
+                        class="modal-constelacion-svg"
+                    ></svg>
+                </div>
+
+                <!-- Guirnalda / buqué floral que abraza la esquina superior izquierda del borde de la UI en modo Carta -->
+                <div id="modal-buque" class="modal-buque-esquina" aria-hidden="true" hidden>
+                    <svg
+                        id="modal-buque-svg"
+                        class="modal-buque-svg"
+                        viewBox="-55 -55 220 220"
+                    ></svg>
+                </div>
+
+                <button
+                    id="modal-cerrar"
+                    class="modal-cerrar"
+                    type="button"
+                    aria-label="Cerrar ventana"
+                >
+                    <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+                        <path
+                            d="M6 6L18 18M18 6L6 18"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                        />
+                    </svg>
+                </button>
+
+                <div class="modal-interior">
+                    <!-- Encabezado con el Título -->
+                    <header class="modal-encabezado">
+                        <h2 id="modal-titulo" class="modal-titulo">Título</h2>
+                    </header>
+
+                <!-- Vista 1: Cuadro de contraseña + Pista del JSON -->
+                <div id="modal-vista-lock" class="modal-vista-lock">
+                    <div id="modal-caja-pista" class="modal-pista">
+                        <span class="modal-pista-etiqueta">Pista:</span>
+                        <span id="modal-texto-pista" class="modal-pista-texto"></span>
+                    </div>
+
+                    <form id="modal-form-password" class="modal-form" autocomplete="off">
+                        <label for="modal-input-password" class="modal-label">
+                            Escribe la frase secreta:
+                        </label>
+                        <div class="modal-input-grupo">
+                            <input
+                                id="modal-input-password"
+                                class="modal-input"
+                                type="password"
+                                placeholder="Tu frase secreta..."
+                                required
+                            />
+                            <button
+                                id="modal-btn-ver"
+                                class="modal-btn-ver"
+                                type="button"
+                                aria-label="Mostrar u ocultar frase"
+                                title="Mostrar u ocultar frase"
+                            >
+                                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                    <path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7Z" />
+                                    <circle cx="12" cy="12" r="3" />
+                                </svg>
+                            </button>
+                        </div>
+                        <p id="modal-error" class="modal-error" role="alert" hidden></p>
+                        <button type="submit" class="modal-btn-abrir">
+                            Desbloquear
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Vista 2A: Contenido de la Receta (cuando se abre desde una Estrella) -->
+                <div id="modal-vista-receta" class="modal-contenido-receta" hidden>
+                    <div class="receta-seccion">
+                        <h3>Ingredientes</h3>
+                        <ul id="modal-lista-ingredientes" class="receta-ingredientes"></ul>
+                    </div>
+                    <div class="receta-seccion">
+                        <h3>Preparación</h3>
+                        <ol id="modal-lista-pasos" class="receta-pasos"></ol>
+                    </div>
+                </div>
+
+                    <!-- Vista 2B: Contenido de la Carta (cuando se abre desde una Flor) -->
+                    <div id="modal-vista-carta" class="modal-contenido-carta" hidden>
+                        <div class="carta-papel">
+                            <p id="modal-texto-carta" class="carta-texto"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </main>
+
     <script src="app.js"></script>
 </body>
 

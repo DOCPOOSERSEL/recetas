@@ -1,6 +1,8 @@
 {
-    "id": "pozole",
-    "titulo": "Pozole rojo",
+    "id": "cheescake",
+    "titulo": "Cheescake de Canela",
+    "pista": "Que aspecto de ti me hizo empezar a decirte Solecito",
+    "contraseña": "uv tpñsjtb",
     "carta": "Para cuando necesites un abrazo en forma de plato.",
     "receta": {
         "ingredientes": [
