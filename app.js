@@ -1084,9 +1084,9 @@ function crearElementoFlorReceta(receta, pos) {
 // 3.4: Personaje animado en el campo — Paso 1: Caminata con efecto de pasos
 // --------------------------------------------------------------------------
 const SPRITES_PERSONAJE = {
-    caminando: "Animaciones/CaminandoJ.png",
-    sentada: "Animaciones/SentadaJ.png",
-    frente: "Animaciones/MiradaEnfrenteJ.png"
+    caminando: "Animaciones/CaminandoJ2.png",
+    sentada: "Animaciones/SentadaJ2.png",
+    frente: "Animaciones/MiradaEnfrenteJ2.png"
 };
 
 function configurarPersonajeCampo() {
