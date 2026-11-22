@@ -1277,13 +1277,36 @@ function configurarPersonajeCampo() {
         soltarPersonaje();
     });
 
+    let rafId = null;
+
+    function actualizarLoopPersonaje() {
+        const debeCorrer = !document.hidden && escenaActual === "campo";
+        if (debeCorrer) {
+            if (rafId === null) {
+                estado.ultimoTiempo = performance.now();
+                rafId = requestAnimationFrame(loop);
+            }
+        } else if (rafId !== null) {
+            cancelAnimationFrame(rafId);
+            rafId = null;
+        }
+    }
+
+    sincronizarLoopPersonaje = actualizarLoopPersonaje;
+    document.addEventListener("visibilitychange", actualizarLoopPersonaje);
+
     function loop(ahora) {
+        if (document.hidden || escenaActual !== "campo") {
+            rafId = null;
+            return;
+        }
+
         const dt = Math.min(0.1, (ahora - estado.ultimoTiempo) / 1000);
         estado.ultimoTiempo = ahora;
 
         // Mientras la estás cargando con el mouse, no corre el reloj de caminar/sentarse
         if (estado.modo === "cargada") {
-            requestAnimationFrame(loop);
+            rafId = requestAnimationFrame(loop);
             return;
         }
 
@@ -1302,7 +1325,7 @@ function configurarPersonajeCampo() {
             }
 
             actualizarPosicionDOM();
-            requestAnimationFrame(loop);
+            rafId = requestAnimationFrame(loop);
             return;
         }
 
@@ -1354,11 +1377,11 @@ function configurarPersonajeCampo() {
         }
 
         actualizarPosicionDOM();
-        requestAnimationFrame(loop);
+        rafId = requestAnimationFrame(loop);
     }
 
     actualizarPosicionDOM();
-    requestAnimationFrame(loop);
+    actualizarLoopPersonaje();
 }
 
 // --------------------------------------------------------------------------
@@ -1381,6 +1404,7 @@ const audiosAmbiente = {
 let escenaActual = window.location.hash === "#campo" ? "campo" : "noche";
 let contenidoModalAbierto = false;
 let desbloqueoAutoplayActivo = false;
+let sincronizarLoopPersonaje = () => {};
 
 function crearAudioAmbiente(nombreArchivo) {
     const audio = new Audio(`canciones/${encodeURIComponent(nombreArchivo)}`);
@@ -1436,6 +1460,13 @@ function sincronizarAudioAmbiente() {
         return;
     }
 
+    if (document.hidden) {
+        for (const audio of Object.values(audiosAmbiente)) {
+            audio.pause();
+        }
+        return;
+    }
+
     const otraEscena = escenaActual === "campo" ? "noche" : "campo";
     const audioSaliente = audiosAmbiente[otraEscena];
     const audioActual = audiosAmbiente[escenaActual];
@@ -1458,6 +1489,11 @@ function sincronizarAudioAmbiente() {
     }
 }
 
+// Optimización #6: pausar el audio ambiental al cambiar de pestaña o bloquear el celular
+document.addEventListener("visibilitychange", () => {
+    sincronizarAudioAmbiente();
+});
+
 function configurarCambioEscena() {
     const escenaNoche = document.getElementById("escena-noche");
     const escenaCampo = document.getElementById("escena-campo");
@@ -1476,6 +1512,7 @@ function configurarCambioEscena() {
         escenaCampo.classList.toggle("activa", esCampo);
 
         sincronizarAudioAmbiente();
+        sincronizarLoopPersonaje();
     }
 
     function leerHash() {
