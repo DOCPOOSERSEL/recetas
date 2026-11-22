@@ -5,7 +5,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <title>Nuestro recetario</title>
-    <link rel="stylesheet" href="style.css?v=9" />
+    <link rel="stylesheet" href="style.css?v=19" />
 </head>
 
 <body>
@@ -297,6 +297,20 @@
                 <!-- 5. Pasto de frente -->
                 <g id="capa-pasto-frente" aria-hidden="true"></g>
             </svg>
+
+            <!-- Personaje animado en el campo -->
+            <div id="personaje-campo" class="personaje-campo caminando" aria-label="Personaje en el campo">
+                <div class="personaje-sombra" aria-hidden="true"></div>
+                <div class="personaje-volteo">
+                    <img
+                        id="personaje-img"
+                        class="personaje-img"
+                        src="Animaciones/CaminandoJ.png"
+                        alt="Personaje"
+                        draggable="false"
+                    />
+                </div>
+            </div>
         </section>
 
         <!-- ================================================================
@@ -400,7 +414,7 @@
         </div>
     </main>
 
-    <script src="app.js?v=9"></script>
+    <script src="app.js?v=19"></script>
 </body>
 
 </html>

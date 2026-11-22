@@ -1081,10 +1081,383 @@ function crearElementoFlorReceta(receta, pos) {
 }
 
 // --------------------------------------------------------------------------
-// 4. Transición entre Noche y Campo de día:
+// 3.4: Personaje animado en el campo — Paso 1: Caminata con efecto de pasos
+// --------------------------------------------------------------------------
+const SPRITES_PERSONAJE = {
+    caminando: "Animaciones/CaminandoJ.png",
+    sentada: "Animaciones/SentadaJ.png",
+    frente: "Animaciones/MiradaEnfrenteJ.png"
+};
+
+function configurarPersonajeCampo() {
+    const contenedor = document.getElementById("personaje-campo");
+    const img = document.getElementById("personaje-img");
+    if (!contenedor || !img) return;
+
+    // Precargamos los 3 PNG para que los cambios de animación sean instantáneos
+    for (const ruta of Object.values(SPRITES_PERSONAJE)) {
+        const preload = new Image();
+        preload.src = ruta;
+    }
+
+    // Límites del cuadro de la pradera donde ella puede caminar
+    const LIMITES_CAMINATA = {
+        xMin: 14,
+        xMax: 86,
+        yMin: 56,
+        yMax: 86
+    };
+
+    const estado = {
+        modo: "caminando", // "caminando" | "sentada" | "cargada" | "cayendo"
+        x: 50,
+        y: 74,
+        destinoX: 65,
+        destinoY: 76,
+        aterrizajeX: 50,
+        aterrizajeY: 64,
+        velocidadCaida: 0,
+        velocidad: 7.5, // porcentaje de pantalla por segundo
+        dirX: 1,
+        tiempoCambioEstado: 20, // camina cada 20 segundos
+        tiempoEnModoActual: 0,
+        ultimoTiempo: performance.now(),
+        inicioCargaMs: 0,
+        inicioCargaX: 0,
+        inicioCargaY: 0,
+        modoToggleClick: false
+    };
+
+    function cambiarModoPersonaje(nuevoModo) {
+        if (estado.modo === nuevoModo) return;
+        estado.modo = nuevoModo;
+        estado.tiempoEnModoActual = 0;
+
+        if (nuevoModo === "cargada") {
+            contenedor.classList.remove("caminando", "frenando", "sentada", "cayendo");
+            contenedor.classList.add("cargada");
+            img.src = SPRITES_PERSONAJE.frente;
+            estado.dirX = 1; // Mirando de frente sin espejo
+        } else if (nuevoModo === "cayendo") {
+            contenedor.classList.remove("caminando", "frenando", "sentada", "cargada");
+            contenedor.classList.add("cayendo");
+            img.src = SPRITES_PERSONAJE.frente;
+            estado.dirX = 1;
+        } else if (nuevoModo === "sentada") {
+            contenedor.classList.remove("caminando", "frenando", "cargada", "cayendo");
+            contenedor.classList.add("sentada");
+            img.src = SPRITES_PERSONAJE.sentada;
+            contenedor.style.removeProperty("--opacidad-sombra-aire");
+            // Se queda sentada durante 10 segundos
+            estado.tiempoCambioEstado = 10;
+        } else if (nuevoModo === "caminando") {
+            contenedor.classList.remove("sentada", "frenando", "cargada", "cayendo");
+            contenedor.classList.add("caminando");
+            img.src = SPRITES_PERSONAJE.caminando;
+            contenedor.style.removeProperty("--opacidad-sombra-aire");
+            // Camina durante 20 segundos antes de volver a sentarse
+            estado.tiempoCambioEstado = 20;
+        }
+    }
+
+    function elegirNuevoDestino() {
+        estado.destinoX =
+            LIMITES_CAMINATA.xMin +
+            Math.random() * (LIMITES_CAMINATA.xMax - LIMITES_CAMINATA.xMin);
+        estado.destinoY =
+            LIMITES_CAMINATA.yMin +
+            Math.random() * (LIMITES_CAMINATA.yMax - LIMITES_CAMINATA.yMin);
+    }
+
+    elegirNuevoDestino();
+
+    function actualizarPosicionDOM() {
+        contenedor.style.left = `${estado.x.toFixed(2)}%`;
+        contenedor.style.top = `${estado.y.toFixed(2)}%`;
+        contenedor.style.setProperty("--dir-x", String(estado.dirX));
+
+        // Si está arriba del pasto (en el cielo/montañas), ocultamos la sombra del suelo
+        if (estado.modo === "cargada" || estado.modo === "cayendo") {
+            const opSombra = estado.y < LIMITES_CAMINATA.yMin ? "0" : "0.22";
+            contenedor.style.setProperty("--opacidad-sombra-aire", opSombra);
+        }
+    }
+
+    // Convierte la posición del mouse/toque a coordenadas (x%, y%) permitiendo subirla hasta el cielo
+    function moverSegunPuntero(clientX, clientY) {
+        const escenaCampo = document.getElementById("escena-campo");
+        const rect = (escenaCampo || document.body).getBoundingClientRect();
+        if (!rect.width || !rect.height) return;
+
+        const altoPersonaje = contenedor.offsetHeight || 160;
+        const offsetCabezaPct = ((altoPersonaje * 0.73) / rect.height) * 100;
+
+        const pctX = ((clientX - rect.left) / rect.width) * 100;
+        const pctY = ((clientY - rect.top) / rect.height) * 100 + offsetCabezaPct;
+
+        // Permite subirla hasta arriba (cielo) mientras la estás cargando
+        estado.x = Math.max(6, Math.min(94, pctX));
+        estado.y = Math.max(12, Math.min(94, pctY));
+        actualizarPosicionDOM();
+    }
+
+    function soltarPersonaje() {
+        if (estado.modo !== "cargada") return;
+        estado.modoToggleClick = false;
+
+        // Punto dentro del cuadro donde puede caminar al que debe caer/quedar
+        estado.aterrizajeX = Math.max(
+            LIMITES_CAMINATA.xMin,
+            Math.min(LIMITES_CAMINATA.xMax, estado.x)
+        );
+
+        // Si la soltaste arriba del cuadro del campo (en el cielo o montañas), cae hacia el pasto
+        if (estado.y < LIMITES_CAMINATA.yMin) {
+            estado.aterrizajeY =
+                LIMITES_CAMINATA.yMin + 4 + Math.random() * 12; // cae dentro de la pradera (60%..72%)
+            estado.velocidadCaida = 18;
+            cambiarModoPersonaje("cayendo");
+            actualizarPosicionDOM();
+            return;
+        }
+
+        // Si la soltaste muy abajo o a los lados, la ajustamos al cuadro permitido
+        estado.x = estado.aterrizajeX;
+        estado.y = Math.max(
+            LIMITES_CAMINATA.yMin,
+            Math.min(LIMITES_CAMINATA.yMax, estado.y)
+        );
+        elegirNuevoDestino();
+        cambiarModoPersonaje("caminando");
+        actualizarPosicionDOM();
+    }
+
+    // Soportamos tanto arrastrar (mantener presionado y soltar) como click para cargar y otro click para soltar
+    contenedor.addEventListener("pointerdown", e => {
+        if (e.button !== undefined && e.button !== 0) return;
+        e.preventDefault();
+        e.stopPropagation();
+
+        // Si ya estaba cargada en modo click-suelto, este nuevo click la suelta en su lugar
+        if (estado.modo === "cargada" && estado.modoToggleClick) {
+            soltarPersonaje();
+            return;
+        }
+
+        estado.inicioCargaMs = performance.now();
+        estado.inicioCargaX = e.clientX;
+        estado.inicioCargaY = e.clientY;
+        estado.modoToggleClick = false;
+
+        cambiarModoPersonaje("cargada");
+        moverSegunPuntero(e.clientX, e.clientY);
+    });
+
+    window.addEventListener("pointermove", e => {
+        if (estado.modo !== "cargada") return;
+        moverSegunPuntero(e.clientX, e.clientY);
+    });
+
+    window.addEventListener("pointerup", e => {
+        if (estado.modo !== "cargada") return;
+
+        const duracionMs = performance.now() - estado.inicioCargaMs;
+        const distPx = Math.hypot(
+            e.clientX - estado.inicioCargaX,
+            e.clientY - estado.inicioCargaY
+        );
+
+        // Si fue un click corto (< 220ms y casi sin arrastrar), queda "pegada" al mouse hasta el próximo click
+        if (!estado.modoToggleClick && duracionMs < 220 && distPx < 10) {
+            estado.modoToggleClick = true;
+            return;
+        }
+
+        // Si estaba arrastrando o hizo el segundo click en cualquier parte del campo, la suelta
+        soltarPersonaje();
+    });
+
+    function loop(ahora) {
+        const dt = Math.min(0.1, (ahora - estado.ultimoTiempo) / 1000);
+        estado.ultimoTiempo = ahora;
+
+        // Mientras la estás cargando con el mouse, no corre el reloj de caminar/sentarse
+        if (estado.modo === "cargada") {
+            requestAnimationFrame(loop);
+            return;
+        }
+
+        // Si la soltaste arriba del campo, cae con gravedad hasta aterrizar dentro del cuadro donde camina
+        if (estado.modo === "cayendo") {
+            estado.velocidadCaida += 155 * dt; // aceleración de gravedad
+            estado.y += estado.velocidadCaida * dt;
+            // También se desliza suavemente en X hacia adentro del cuadro si estaba muy a la orilla
+            estado.x += (estado.aterrizajeX - estado.x) * Math.min(1, 8 * dt);
+
+            if (estado.y >= estado.aterrizajeY) {
+                estado.y = estado.aterrizajeY;
+                estado.x = estado.aterrizajeX;
+                elegirNuevoDestino();
+                cambiarModoPersonaje("caminando");
+            }
+
+            actualizarPosicionDOM();
+            requestAnimationFrame(loop);
+            return;
+        }
+
+        // Cuenta regresiva para alternar entre caminar (20s) y sentarse (10s)
+        estado.tiempoCambioEstado -= dt;
+        estado.tiempoEnModoActual += dt;
+
+        if (estado.tiempoCambioEstado <= 0) {
+            if (estado.modo === "caminando") {
+                cambiarModoPersonaje("sentada");
+            } else if (estado.modo === "sentada") {
+                elegirNuevoDestino();
+                cambiarModoPersonaje("caminando");
+            }
+        }
+
+        if (estado.modo === "caminando") {
+            // En los últimos 2.4 segundos antes de sentarse, va frenando poco a poco
+            const ventanaFrenado = 2.4;
+            const estaFrenando = estado.tiempoCambioEstado < ventanaFrenado;
+            contenedor.classList.toggle("frenando", estaFrenando);
+            contenedor.classList.toggle("caminando", !estaFrenando);
+
+            // Factor de velocidad suave: desacelera al sentarse y acelera suave al levantarse
+            let factorVelocidad = 1;
+            if (estaFrenando) {
+                const t = Math.max(0, estado.tiempoCambioEstado / ventanaFrenado);
+                factorVelocidad = t * t; // curva suave hasta detenerse en 0
+            } else if (estado.tiempoEnModoActual < 1.2) {
+                factorVelocidad = 0.25 + 0.75 * (estado.tiempoEnModoActual / 1.2);
+            }
+
+            const dx = estado.destinoX - estado.x;
+            const dy = estado.destinoY - estado.y;
+            const dist = Math.hypot(dx, dy);
+
+            if (dist < 0.8) {
+                elegirNuevoDestino();
+            } else {
+                const paso = estado.velocidad * factorVelocidad * dt;
+                estado.x += (dx / dist) * Math.min(paso, dist);
+                estado.y += (dy / dist) * Math.min(paso, dist);
+
+                // Voltea la imagen hacia donde camina (evita girar justo cuando ya casi se detuvo)
+                if (Math.abs(dx) > 0.1 && factorVelocidad > 0.25) {
+                    estado.dirX = dx >= 0 ? 1 : -1;
+                }
+            }
+        }
+
+        actualizarPosicionDOM();
+        requestAnimationFrame(loop);
+    }
+
+    actualizarPosicionDOM();
+    requestAnimationFrame(loop);
+}
+
+// --------------------------------------------------------------------------
+// 4. Audio ambiental por escena (Noche / Campo) + Transición entre escenas:
+//    - Noche: Ambient Sounds en loop; se detiene al abrir/desbloquear una receta.
+//    - Campo: Meadows en loop; se detiene al abrir/desbloquear una carta.
 //    - Click en montañas (noche): la luna baja y se oculta -> amanece en el campo
 //    - Click en el sol (campo): el sol se oculta detrás de las colinas -> sube al cielo nocturno
 // --------------------------------------------------------------------------
+const ARCHIVOS_AMBIENTE = {
+    noche: "Ambient Sounds - European forest - A night in Hirschfelden.mp3",
+    campo: "Meadows Ambience Sound Effect - Relaxing Ambient Nature Countryside.mp3"
+};
+
+const audiosAmbiente = {
+    noche: crearAudioAmbiente(ARCHIVOS_AMBIENTE.noche),
+    campo: crearAudioAmbiente(ARCHIVOS_AMBIENTE.campo)
+};
+
+let escenaActual = window.location.hash === "#campo" ? "campo" : "noche";
+let contenidoModalAbierto = false;
+let desbloqueoAutoplayActivo = false;
+
+function crearAudioAmbiente(nombreArchivo) {
+    const audio = new Audio(`canciones/${encodeURIComponent(nombreArchivo)}`);
+    audio.loop = true;
+    audio.volume = 0.55;
+    audio.preload = "none";
+    return audio;
+}
+
+function detenerAudioAmbiente() {
+    for (const audio of Object.values(audiosAmbiente)) {
+        audio.pause();
+        audio.currentTime = 0;
+    }
+}
+
+function activarDesbloqueoAutoplay() {
+    if (desbloqueoAutoplayActivo) return;
+    desbloqueoAutoplayActivo = true;
+
+    const intentarReanudar = e => {
+        // Si el primer toque es directamente en el botón de cambio de escena, ese click ya cambia y arranca el ambiente destino
+        if (
+            e.target &&
+            typeof e.target.closest === "function" &&
+            (e.target.closest("#nav-ir-campo") || e.target.closest("#nav-ir-noche"))
+        ) {
+            desbloqueoAutoplayActivo = false;
+            window.removeEventListener("click", intentarReanudar, true);
+            window.removeEventListener("touchend", intentarReanudar, true);
+            window.removeEventListener("keydown", intentarReanudar, true);
+            return;
+        }
+
+        desbloqueoAutoplayActivo = false;
+        window.removeEventListener("click", intentarReanudar, true);
+        window.removeEventListener("touchend", intentarReanudar, true);
+        window.removeEventListener("keydown", intentarReanudar, true);
+
+        if (!contenidoModalAbierto) {
+            sincronizarAudioAmbiente();
+        }
+    };
+
+    window.addEventListener("click", intentarReanudar, { capture: true });
+    window.addEventListener("touchend", intentarReanudar, { capture: true });
+    window.addEventListener("keydown", intentarReanudar, { capture: true });
+}
+
+function sincronizarAudioAmbiente() {
+    if (contenidoModalAbierto) {
+        detenerAudioAmbiente();
+        return;
+    }
+
+    const otraEscena = escenaActual === "campo" ? "noche" : "campo";
+    const audioSaliente = audiosAmbiente[otraEscena];
+    const audioActual = audiosAmbiente[escenaActual];
+
+    if (audioSaliente) {
+        audioSaliente.pause();
+        audioSaliente.currentTime = 0;
+    }
+
+    if (audioActual && audioActual.paused) {
+        const promesa = audioActual.play();
+        if (promesa && typeof promesa.catch === "function") {
+            promesa.catch(err => {
+                // Solo re-armamos el desbloqueo si fue bloqueo de autoplay del navegador
+                if (!contenidoModalAbierto && (!err || err.name === "NotAllowedError")) {
+                    activarDesbloqueoAutoplay();
+                }
+            });
+        }
+    }
+}
+
 function configurarCambioEscena() {
     const escenaNoche = document.getElementById("escena-noche");
     const escenaCampo = document.getElementById("escena-campo");
@@ -1096,10 +1469,13 @@ function configurarCambioEscena() {
 
     function aplicarEscena(nombre) {
         const esCampo = nombre === "campo";
+        escenaActual = esCampo ? "campo" : "noche";
         escenaNoche.classList.remove("ocultando-luna");
         escenaCampo.classList.remove("ocultando-sol");
         escenaNoche.classList.toggle("activa", !esCampo);
         escenaCampo.classList.toggle("activa", esCampo);
+
+        sincronizarAudioAmbiente();
     }
 
     function leerHash() {
@@ -1109,6 +1485,9 @@ function configurarCambioEscena() {
     function transicionarACampo() {
         if (enTransicion || leerHash() === "campo") return;
         enTransicion = true;
+        // Cambiamos el ambiente dentro del evento de click para compatibilidad con móviles/Safari
+        escenaActual = "campo";
+        sincronizarAudioAmbiente();
         // Primero se oculta la luna bajando hacia las montañas
         escenaNoche.classList.add("ocultando-luna");
         setTimeout(() => {
@@ -1120,6 +1499,9 @@ function configurarCambioEscena() {
     function transicionarANoche() {
         if (enTransicion || leerHash() === "noche") return;
         enTransicion = true;
+        // Cambiamos el ambiente dentro del evento de click para compatibilidad con móviles/Safari
+        escenaActual = "noche";
+        sincronizarAudioAmbiente();
         // Primero el sol se oculta detrás de las montañas y luego sube al cielo nocturno
         escenaCampo.classList.add("ocultando-sol");
         setTimeout(() => {
@@ -1149,6 +1531,13 @@ function configurarCambioEscena() {
     }
 
     window.addEventListener("hashchange", () => {
+        // Si cambia de escena con el botón Atrás/Adelante mientras había un modal abierto, cerramos primero
+        const overlay = document.getElementById("modal-overlay");
+        if (overlay && !overlay.hidden) {
+            detenerCancionCarta();
+            contenidoModalAbierto = false;
+            overlay.hidden = true;
+        }
         aplicarEscena(leerHash());
     });
 
@@ -1279,7 +1668,7 @@ function reproducirCancionCarta(receta) {
         ? nombreCancion
         : `${nombreCancion}.mp3`;
 
-    const audio = new Audio(`canciones/${archivo}`);
+    const audio = new Audio(`canciones/${encodeURIComponent(archivo)}`);
     audio.loop = true;
     audio.volume = 0.85;
     audioCartaActual = audio;
@@ -1522,6 +1911,10 @@ function renderizarContenidoDesbloqueado(receta, modo) {
     const vistaReceta = document.getElementById("modal-vista-receta");
     const vistaCarta = document.getElementById("modal-vista-carta");
 
+    // Al desbloquear la receta o la carta con éxito, detenemos el sonido ambiental
+    contenidoModalAbierto = true;
+    detenerAudioAmbiente();
+
     if (vistaLock) vistaLock.hidden = true;
 
     if (modo === "receta") {
@@ -1587,6 +1980,7 @@ function abrirModal(receta, modo) {
     if (!overlay || !tarjeta) return;
 
     detenerCancionCarta();
+    contenidoModalAbierto = false;
     estadoModalActual = { receta, modo };
 
     const esCarta = modo === "carta";
@@ -1657,8 +2051,10 @@ function abrirModal(receta, modo) {
 
 function cerrarModal() {
     detenerCancionCarta();
+    contenidoModalAbierto = false;
     const overlay = document.getElementById("modal-overlay");
     if (overlay) overlay.hidden = true;
+    sincronizarAudioAmbiente();
 }
 
 function configurarModal() {
@@ -1752,6 +2148,7 @@ async function iniciarApp() {
     renderizarEstrellasFondo();
     renderizarFloresMontanasNoche();
     renderizarPaisajeCampo();
+    configurarPersonajeCampo();
     configurarCambioEscena();
     configurarModal();
 
