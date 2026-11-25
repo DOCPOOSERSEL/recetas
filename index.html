@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <title>Nuestro recetario</title>
 
-    <link rel="stylesheet" href="style.css?v=24" />
+    <link rel="stylesheet" href="style.css?v=28" />
 </head>
 
 <body>
@@ -15,14 +15,8 @@
              Escena 1: Noche estrellada
              ================================================================ -->
         <section id="escena-noche" class="escena activa" aria-label="Noche estrellada">
-            <svg
-                id="svg-noche"
-                class="lienzo-svg"
-                viewBox="0 0 1000 1000"
-                preserveAspectRatio="xMidYMid slice"
-                role="img"
-                aria-label="Cielo nocturno con luna y estrellas de recetas"
-            >
+            <svg id="svg-noche" class="lienzo-svg" viewBox="0 0 1000 1000" preserveAspectRatio="xMidYMid slice"
+                role="img" aria-label="Cielo nocturno con luna y estrellas de recetas">
                 <defs>
                     <!-- Gradiente del cielo nocturno: azul marino profundo a morado oscuro -->
                     <linearGradient id="grad-cielo-noche" x1="0%" y1="0%" x2="25%" y2="100%">
@@ -86,10 +80,14 @@
                     <circle cx="500" cy="500" r="110" fill="url(#grad-luna)" />
 
                     <g clip-path="url(#clip-luna)">
-                        <ellipse cx="460" cy="465" rx="42" ry="30" transform="rotate(-18 460 465)" fill="#cbb993" opacity="0.28" />
-                        <ellipse cx="525" cy="445" rx="28" ry="22" transform="rotate(20 525 445)" fill="#cbb993" opacity="0.22" />
-                        <ellipse cx="485" cy="535" rx="48" ry="28" transform="rotate(10 485 535)" fill="#c5b28b" opacity="0.24" />
-                        <ellipse cx="548" cy="510" rx="24" ry="34" transform="rotate(-12 548 510)" fill="#c5b28b" opacity="0.2" />
+                        <ellipse cx="460" cy="465" rx="42" ry="30" transform="rotate(-18 460 465)" fill="#cbb993"
+                            opacity="0.28" />
+                        <ellipse cx="525" cy="445" rx="28" ry="22" transform="rotate(20 525 445)" fill="#cbb993"
+                            opacity="0.22" />
+                        <ellipse cx="485" cy="535" rx="48" ry="28" transform="rotate(10 485 535)" fill="#c5b28b"
+                            opacity="0.24" />
+                        <ellipse cx="548" cy="510" rx="24" ry="34" transform="rotate(-12 548 510)" fill="#c5b28b"
+                            opacity="0.2" />
 
                         <circle cx="445" cy="445" r="16" fill="#c7b58e" opacity="0.35" />
                         <circle cx="447" cy="447" r="13" fill="#dfd1b0" opacity="0.35" />
@@ -104,9 +102,7 @@
 
                         <path
                             d="M 500,390 A 110,110 0 0,1 610,500 A 110,110 0 0,1 390,500 A 118,108 0 0,0 595,475 A 112,110 0 0,0 500,390 Z"
-                            fill="#9e8a63"
-                            opacity="0.16"
-                        />
+                            fill="#9e8a63" opacity="0.16" />
                     </g>
                 </g>
 
@@ -114,32 +110,23 @@
                 <g id="capa-estrellas-receta"></g>
 
                 <!-- 5. Puntas de las montañas abajo (click para que se oculte la luna y amanezca en el campo) -->
-                <g
-                    id="nav-ir-campo"
-                    class="nav-montanas-abajo"
-                    role="button"
-                    tabindex="0"
-                    aria-label="Ir al campo de flores"
-                >
+                <g id="nav-ir-campo" class="nav-montanas-abajo" role="button" tabindex="0"
+                    aria-label="Ir al campo de flores">
                     <title>Bajar al campo de flores</title>
                     <!-- Área de toque ampliada sobre las cumbres (abarca todo el ancho en PC) -->
                     <rect x="-1000" y="865" width="3000" height="145" fill="transparent" />
 
                     <!-- Puntas de la cordillera lejana asomándose abajo (-1000 a 2000) -->
-                    <path
-                        class="cumbre-lejana"
+                    <path class="cumbre-lejana"
                         d="M -1000,1010 L -1000,938 Q -840,884 -680,936 Q -510,880 -340,934 Q -175,882 -20,948 Q 95,892 215,935 Q 345,878 485,930 Q 635,872 780,926 Q 905,888 1020,938 Q 1185,880 1350,934 Q 1520,884 1690,936 Q 1845,888 2000,940 L 2000,1010 Z"
-                        fill="url(#grad-punta-montana-lejana)"
-                    />
+                        fill="url(#grad-punta-montana-lejana)" />
                     <!-- Florecitas sobre la cumbre lejana nocturna -->
                     <g id="capa-flores-cumbre-lejana" class="cumbre-lejana" aria-hidden="true"></g>
 
                     <!-- Puntas de las colinas más cercanas (-1000 a 2000) -->
-                    <path
-                        class="cumbre-frente"
+                    <path class="cumbre-frente"
                         d="M -1000,1015 L -1000,960 Q -800,910 -600,956 Q -410,906 -220,956 Q -115,916 -20,968 Q 150,916 310,956 Q 505,902 685,952 Q 845,914 1020,958 Q 1210,906 1400,954 Q 1590,912 1780,956 Q 1890,920 2000,960 L 2000,1015 Z"
-                        fill="url(#grad-punta-montana-frente)"
-                    />
+                        fill="url(#grad-punta-montana-frente)" />
                     <!-- Florecitas sobre la cumbre frontal nocturna -->
                     <g id="capa-flores-cumbre-frente" class="cumbre-frente" aria-hidden="true"></g>
                 </g>
@@ -150,14 +137,8 @@
              Escena 2: Campo de flores (De día, con Sol interactivo)
              ================================================================ -->
         <section id="escena-campo" class="escena" aria-label="Campo de flores">
-            <svg
-                id="svg-campo"
-                class="lienzo-svg"
-                viewBox="0 0 1000 1000"
-                preserveAspectRatio="xMidYMid slice"
-                role="img"
-                aria-label="Campo soleado con flores de cartas"
-            >
+            <svg id="svg-campo" class="lienzo-svg" viewBox="0 0 1000 1000" preserveAspectRatio="xMidYMid slice"
+                role="img" aria-label="Campo soleado con flores de cartas">
                 <defs>
                     <!-- Cielo soleado de día -->
                     <linearGradient id="grad-cielo-campo" x1="0%" y1="0%" x2="0%" y2="100%">
@@ -234,13 +215,8 @@
                 </g>
 
                 <!-- Sol interactivo: al darle click se oculta detrás de las montañas y te sube al cielo nocturno -->
-                <g
-                    id="nav-ir-noche"
-                    class="sol-regreso"
-                    role="button"
-                    tabindex="0"
-                    aria-label="Ocultar el sol y subir a la noche estrellada"
-                >
+                <g id="nav-ir-noche" class="sol-regreso" role="button" tabindex="0"
+                    aria-label="Ocultar el sol y subir a la noche estrellada">
                     <title>Dar click al sol para que anochezca y subir al cielo</title>
                     <!-- Halo exterior amplio -->
                     <circle cx="500" cy="155" r="150" fill="url(#grad-halo-sol)" />
@@ -270,22 +246,19 @@
                     <!-- Cordillera más lejana (-1000 a 2000) -->
                     <path
                         d="M -1000,415 Q -820,348 -650,398 Q -480,345 -320,402 Q -170,350 -20,430 Q 150,340 340,395 T 710,375 T 1020,415 Q 1190,348 1360,400 Q 1530,348 1700,402 Q 1850,358 2000,415 L 2000,600 L -1000,600 Z"
-                        fill="url(#grad-colina-lejana)"
-                    />
+                        fill="url(#grad-colina-lejana)" />
                     <g id="capa-flores-colina-lejana" aria-hidden="true"></g>
 
                     <!-- Colinas intermedias (-1000 a 2000) -->
                     <path
                         d="M -1000,445 Q -780,392 -560,440 Q -360,395 -180,442 Q -100,410 -20,455 Q 210,390 460,445 T 880,410 Q 960,420 1020,440 Q 1220,392 1420,440 Q 1620,395 1820,442 Q 1910,418 2000,445 L 2000,650 L -1000,650 Z"
-                        fill="url(#grad-colina-media)"
-                    />
+                        fill="url(#grad-colina-media)" />
                     <g id="capa-flores-colina-media" aria-hidden="true"></g>
 
                     <!-- Loma principal de la pradera (~60% inferior del lienzo, -1000 a 2000) -->
                     <path
                         d="M -1000,468 Q -510,435 -20,475 Q 260,435 530,470 T 1020,460 Q 1510,435 2000,470 L 2000,1020 L -1000,1020 Z"
-                        fill="url(#grad-pradera)"
-                    />
+                        fill="url(#grad-pradera)" />
                 </g>
 
                 <!-- 3. Pasto de fondo -->
@@ -299,17 +272,20 @@
                 <g id="capa-pasto-frente" aria-hidden="true"></g>
             </svg>
 
-            <!-- Personaje animado en el campo -->
-            <div id="personaje-campo" class="personaje-campo caminando" aria-label="Personaje en el campo">
+            <!-- Personajes animados en el campo (J y S) -->
+            <div id="personaje-campo" class="personaje-campo caminando" aria-label="Personaje J en el campo">
                 <div class="personaje-sombra" aria-hidden="true"></div>
                 <div class="personaje-volteo">
-                    <img
-                        id="personaje-img"
-                        class="personaje-img"
-                        src="Animaciones/CaminandoJ2.png"
-                        alt="Personaje"
-                        draggable="false"
-                    />
+                    <img id="personaje-img" class="personaje-img" src="Animaciones/CaminandoJ2.png" alt="Personaje J"
+                        draggable="false" />
+                </div>
+            </div>
+
+            <div id="personaje-campo-s" class="personaje-campo caminando" aria-label="Personaje S en el campo">
+                <div class="personaje-sombra" aria-hidden="true"></div>
+                <div class="personaje-volteo">
+                    <img id="personaje-img-s" class="personaje-img" src="Animaciones/CaminandoS.png" alt="Personaje S"
+                        draggable="false" />
                 </div>
             </div>
         </section>
@@ -317,45 +293,22 @@
         <!-- ================================================================
              Paso 3.4: Modal compartido (Estrella -> Receta | Flor -> Carta)
              ================================================================ -->
-        <div
-            id="modal-overlay"
-            class="modal-overlay"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="modal-titulo"
-            hidden
-        >
+        <div id="modal-overlay" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-titulo"
+            hidden>
             <div id="modal-tarjeta" class="modal-tarjeta">
                 <!-- Marco de constelación que rodea todo el borde de la UI en modo Receta -->
                 <div id="modal-constelacion" class="modal-constelacion-marco" aria-hidden="true" hidden>
-                    <svg
-                        id="modal-constelacion-svg"
-                        class="modal-constelacion-svg"
-                    ></svg>
+                    <svg id="modal-constelacion-svg" class="modal-constelacion-svg"></svg>
                 </div>
 
                 <!-- Guirnalda / buqué floral que abraza la esquina superior izquierda del borde de la UI en modo Carta -->
                 <div id="modal-buque" class="modal-buque-esquina" aria-hidden="true" hidden>
-                    <svg
-                        id="modal-buque-svg"
-                        class="modal-buque-svg"
-                        viewBox="-55 -55 220 220"
-                    ></svg>
+                    <svg id="modal-buque-svg" class="modal-buque-svg" viewBox="-55 -55 220 220"></svg>
                 </div>
 
-                <button
-                    id="modal-cerrar"
-                    class="modal-cerrar"
-                    type="button"
-                    aria-label="Cerrar ventana"
-                >
+                <button id="modal-cerrar" class="modal-cerrar" type="button" aria-label="Cerrar ventana">
                     <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
-                        <path
-                            d="M6 6L18 18M18 6L6 18"
-                            stroke="currentColor"
-                            stroke-width="2"
-                            stroke-linecap="round"
-                        />
+                        <path d="M6 6L18 18M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
                     </svg>
                 </button>
 
@@ -365,44 +318,39 @@
                         <h2 id="modal-titulo" class="modal-titulo">Título</h2>
                     </header>
 
-                <!-- Vista 1: Cuadro de contraseña + Pista del JSON -->
-                <div id="modal-vista-lock" class="modal-vista-lock">
-                    <div id="modal-caja-pista" class="modal-pista">
-                        <span class="modal-pista-etiqueta">Pista:</span>
-                        <span id="modal-texto-pista" class="modal-pista-texto"></span>
-                    </div>
-
-                    <form id="modal-form-password" class="modal-form" autocomplete="off">
-                        <label for="modal-input-password" class="modal-label">
-                            Escribe la frase secreta:
-                        </label>
-                        <div class="modal-input-grupo">
-                            <input
-                                id="modal-input-password"
-                                class="modal-input"
-                                type="text"
-                                placeholder="Tu frase secreta..."
-                                required
-                            />
+                    <!-- Vista 1: Cuadro de contraseña + Pista del JSON -->
+                    <div id="modal-vista-lock" class="modal-vista-lock">
+                        <div id="modal-caja-pista" class="modal-pista">
+                            <span class="modal-pista-etiqueta">Pista:</span>
+                            <span id="modal-texto-pista" class="modal-pista-texto"></span>
                         </div>
-                        <p id="modal-error" class="modal-error" role="alert" hidden></p>
-                        <button type="submit" class="modal-btn-abrir">
-                            Desbloquear
-                        </button>
-                    </form>
-                </div>
 
-                <!-- Vista 2A: Contenido de la Receta (cuando se abre desde una Estrella) -->
-                <div id="modal-vista-receta" class="modal-contenido-receta" hidden>
-                    <div class="receta-seccion">
-                        <h3>Ingredientes</h3>
-                        <ul id="modal-lista-ingredientes" class="receta-ingredientes"></ul>
+                        <form id="modal-form-password" class="modal-form" autocomplete="off">
+                            <label for="modal-input-password" class="modal-label">
+                                Escribe la frase secreta:
+                            </label>
+                            <div class="modal-input-grupo">
+                                <input id="modal-input-password" class="modal-input" type="text"
+                                    placeholder="Tu frase secreta..." required />
+                            </div>
+                            <p id="modal-error" class="modal-error" role="alert" hidden></p>
+                            <button type="submit" class="modal-btn-abrir">
+                                Desbloquear
+                            </button>
+                        </form>
                     </div>
-                    <div class="receta-seccion">
-                        <h3>Preparación</h3>
-                        <ol id="modal-lista-pasos" class="receta-pasos"></ol>
+
+                    <!-- Vista 2A: Contenido de la Receta (cuando se abre desde una Estrella) -->
+                    <div id="modal-vista-receta" class="modal-contenido-receta" hidden>
+                        <div class="receta-seccion">
+                            <h3>Ingredientes</h3>
+                            <ul id="modal-lista-ingredientes" class="receta-ingredientes"></ul>
+                        </div>
+                        <div class="receta-seccion">
+                            <h3>Preparación</h3>
+                            <ol id="modal-lista-pasos" class="receta-pasos"></ol>
+                        </div>
                     </div>
-                </div>
 
                     <!-- Vista 2B: Contenido de la Carta (cuando se abre desde una Flor) -->
                     <div id="modal-vista-carta" class="modal-contenido-carta" hidden>
@@ -415,7 +363,7 @@
         </div>
     </main>
 
-    <script src="app.js?v=24"></script>
+    <script src="app.js?v=27"></script>
 </body>
 
 </html>

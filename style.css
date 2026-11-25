@@ -401,6 +401,33 @@ body {
     animation: balanceo-cayendo 0.35s ease-in-out infinite;
 }
 
+/* Estado de abrazo cuando J y S se juntan */
+.personaje-campo.abrazando .personaje-img {
+    transform-origin: bottom center;
+    animation: balanceo-abrazo 1.6s ease-in-out infinite;
+}
+
+.personaje-campo.abrazando .personaje-sombra {
+    bottom: 9%;
+    width: 68%;
+    opacity: 0.48;
+}
+
+.personaje-campo.oculto-abrazo {
+    opacity: 0;
+    pointer-events: none;
+}
+
+@keyframes balanceo-abrazo {
+    0%,
+    100% {
+        transform: translateY(4%) scale(1.12) rotate(-1.8deg);
+    }
+    50% {
+        transform: translateY(2%) scale(1.14) rotate(1.8deg);
+    }
+}
+
 @keyframes balanceo-cayendo {
 
     0%,
@@ -458,7 +485,7 @@ body {
 .modal-overlay {
     position: fixed;
     inset: 0;
-    z-index: 50;
+    z-index: 2000;
     display: grid;
     place-items: center;
     padding: 20px;

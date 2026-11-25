@@ -1081,26 +1081,52 @@ function crearElementoFlorReceta(receta, pos) {
 }
 
 // --------------------------------------------------------------------------
-// 3.4: Personaje animado en el campo — Paso 1: Caminata con efecto de pasos
+// 3.4: Personajes animados en el campo (J y S reciclando la misma lógica + Abrazo)
 // --------------------------------------------------------------------------
-const SPRITES_PERSONAJE = {
-    caminando: "Animaciones/CaminandoJ2.png",
-    sentada: "Animaciones/SentadaJ2.png",
-    frente: "Animaciones/MiradaEnfrenteJ2.png"
-};
+const SPRITE_ABRAZO = "Animaciones/Abrazo.png";
+const COOLDOWN_ABRAZO_MS = 90 * 1000; // 1 minuto y medio (90 segundos)
+const DURACION_ABRAZO_SEG = 7;        // duración del abrazo en segundos
+const DISTANCIA_ACTIVAR_ABRAZO = 7.2; // distancia cercana en % de pantalla para abrazarse
 
-function configurarPersonajeCampo() {
-    const contenedor = document.getElementById("personaje-campo");
-    const img = document.getElementById("personaje-img");
-    if (!contenedor || !img) return;
+const CONFIG_PERSONAJES = [
+    {
+        contenedorId: "personaje-campo",
+        imgId: "personaje-img",
+        sprites: {
+            caminando: "Animaciones/CaminandoJ2.png",
+            sentada: "Animaciones/SentadaJ2.png",
+            frente: "Animaciones/MiradaEnfrenteJ2.png",
+            abrazo: SPRITE_ABRAZO
+        },
+        tiempoInicial: 20
+    },
+    {
+        contenedorId: "personaje-campo-s",
+        imgId: "personaje-img-s",
+        sprites: {
+            caminando: "Animaciones/CaminandoS.png",
+            sentada: "Animaciones/SentadoS.png",
+            frente: "Animaciones/MirandoEnfrenteS.png",
+            abrazo: SPRITE_ABRAZO
+        },
+        tiempoInicial: 20
+    }
+];
 
-    // Precargamos los 3 PNG para que los cambios de animación sean instantáneos
-    for (const ruta of Object.values(SPRITES_PERSONAJE)) {
+function inicializarMuñecoCampo(config) {
+    const contenedor = document.getElementById(config.contenedorId);
+    const img = document.getElementById(config.imgId);
+    if (!contenedor || !img) return null;
+
+    const sprites = config.sprites;
+
+    // Precargamos los PNG del personaje para que los cambios de animación sean instantáneos
+    for (const ruta of Object.values(sprites)) {
         const preload = new Image();
         preload.src = ruta;
     }
 
-    // Límites del cuadro de la pradera donde ella puede caminar
+    // Límites del cuadro de la pradera donde puede caminar
     const LIMITES_CAMINATA = {
         xMin: 14,
         xMax: 86,
@@ -1109,51 +1135,76 @@ function configurarPersonajeCampo() {
     };
 
     const estado = {
-        modo: "caminando", // "caminando" | "sentada" | "cargada" | "cayendo"
-        x: 50,
-        y: 74,
+        modo: "caminando", // "caminando" | "sentada" | "cargada" | "cayendo" | "abrazando" | "oculto-abrazo"
+        x:
+            LIMITES_CAMINATA.xMin +
+            Math.random() * (LIMITES_CAMINATA.xMax - LIMITES_CAMINATA.xMin),
+        y:
+            LIMITES_CAMINATA.yMin +
+            Math.random() * (LIMITES_CAMINATA.yMax - LIMITES_CAMINATA.yMin),
         destinoX: 65,
         destinoY: 76,
         aterrizajeX: 50,
         aterrizajeY: 64,
         velocidadCaida: 0,
         velocidad: 7.5, // porcentaje de pantalla por segundo
-        dirX: 1,
-        tiempoCambioEstado: 20, // camina cada 20 segundos
+        dirX: Math.random() > 0.5 ? 1 : -1,
+        tiempoCambioEstado: config.tiempoInicial ?? 20, // camina cada 20 segundos
         tiempoEnModoActual: 0,
         ultimoTiempo: performance.now(),
         inicioCargaMs: 0,
         inicioCargaX: 0,
         inicioCargaY: 0,
-        modoToggleClick: false
+        modoToggleClick: false,
+        alRomperAbrazo: null
     };
+
+    function limpiarClasesModo() {
+        contenedor.classList.remove(
+            "caminando",
+            "frenando",
+            "sentada",
+            "cargada",
+            "cayendo",
+            "abrazando",
+            "oculto-abrazo"
+        );
+    }
 
     function cambiarModoPersonaje(nuevoModo) {
         if (estado.modo === nuevoModo) return;
         estado.modo = nuevoModo;
         estado.tiempoEnModoActual = 0;
 
+        limpiarClasesModo();
+
         if (nuevoModo === "cargada") {
-            contenedor.classList.remove("caminando", "frenando", "sentada", "cayendo");
             contenedor.classList.add("cargada");
-            img.src = SPRITES_PERSONAJE.frente;
+            img.src = sprites.frente;
             estado.dirX = 1; // Mirando de frente sin espejo
         } else if (nuevoModo === "cayendo") {
-            contenedor.classList.remove("caminando", "frenando", "sentada", "cargada");
             contenedor.classList.add("cayendo");
-            img.src = SPRITES_PERSONAJE.frente;
+            img.src = sprites.frente;
             estado.dirX = 1;
-        } else if (nuevoModo === "sentada") {
-            contenedor.classList.remove("caminando", "frenando", "cargada", "cayendo");
-            contenedor.classList.add("sentada");
-            img.src = SPRITES_PERSONAJE.sentada;
+        } else if (nuevoModo === "abrazando") {
+            contenedor.classList.add("abrazando");
+            img.src = sprites.abrazo;
+            estado.dirX = 1;
             contenedor.style.removeProperty("--opacidad-sombra-aire");
-            // Se queda sentada durante 10 segundos
+            estado.tiempoCambioEstado = DURACION_ABRAZO_SEG;
+        } else if (nuevoModo === "oculto-abrazo") {
+            contenedor.classList.add("oculto-abrazo");
+            contenedor.style.removeProperty("--opacidad-sombra-aire");
+            estado.tiempoCambioEstado = DURACION_ABRAZO_SEG;
+        } else if (nuevoModo === "sentada") {
+            contenedor.classList.add("sentada");
+            img.src = sprites.sentada;
+            contenedor.style.removeProperty("--opacidad-sombra-aire");
+            // Se queda sentado/a durante 10 segundos
             estado.tiempoCambioEstado = 10;
         } else if (nuevoModo === "caminando") {
-            contenedor.classList.remove("sentada", "frenando", "cargada", "cayendo");
             contenedor.classList.add("caminando");
-            img.src = SPRITES_PERSONAJE.caminando;
+            img.src = sprites.caminando;
             contenedor.style.removeProperty("--opacidad-sombra-aire");
             // Camina durante 20 segundos antes de volver a sentarse
             estado.tiempoCambioEstado = 20;
@@ -1176,6 +1227,13 @@ function configurarPersonajeCampo() {
         contenedor.style.top = `${estado.y.toFixed(2)}%`;
         contenedor.style.setProperty("--dir-x", String(estado.dirX));
 
+        // Perspectiva por altura (Y): el que esté más arriba (menor Y) tiene menor z-index y queda atrás
+        if (estado.modo === "cargada") {
+            contenedor.style.zIndex = "1200";
+        } else {
+            contenedor.style.zIndex = String(100 + Math.round(estado.y * 10));
+        }
+
         // Si está arriba del pasto (en el cielo/montañas), ocultamos la sombra del suelo
         if (estado.modo === "cargada" || estado.modo === "cayendo") {
             const opSombra = estado.y < LIMITES_CAMINATA.yMin ? "0" : "0.22";
@@ -1183,7 +1241,7 @@ function configurarPersonajeCampo() {
         }
     }
 
-    // Convierte la posición del mouse/toque a coordenadas (x%, y%) permitiendo subirla hasta el cielo
+    // Convierte la posición del mouse/toque a coordenadas (x%, y%) permitiendo subirlo/a hasta el cielo
     function moverSegunPuntero(clientX, clientY) {
         const escenaCampo = document.getElementById("escena-campo");
         const rect = (escenaCampo || document.body).getBoundingClientRect();
@@ -1195,7 +1253,6 @@ function configurarPersonajeCampo() {
         const pctX = ((clientX - rect.left) / rect.width) * 100;
         const pctY = ((clientY - rect.top) / rect.height) * 100 + offsetCabezaPct;
 
-        // Permite subirla hasta arriba (cielo) mientras la estás cargando
         estado.x = Math.max(6, Math.min(94, pctX));
         estado.y = Math.max(12, Math.min(94, pctY));
         actualizarPosicionDOM();
@@ -1205,23 +1262,21 @@ function configurarPersonajeCampo() {
         if (estado.modo !== "cargada") return;
         estado.modoToggleClick = false;
 
-        // Punto dentro del cuadro donde puede caminar al que debe caer/quedar
         estado.aterrizajeX = Math.max(
             LIMITES_CAMINATA.xMin,
             Math.min(LIMITES_CAMINATA.xMax, estado.x)
         );
 
-        // Si la soltaste arriba del cuadro del campo (en el cielo o montañas), cae hacia el pasto
+        // Si se soltó arriba del cuadro del campo (en el cielo o montañas), cae hacia el pasto
         if (estado.y < LIMITES_CAMINATA.yMin) {
             estado.aterrizajeY =
-                LIMITES_CAMINATA.yMin + 4 + Math.random() * 12; // cae dentro de la pradera (60%..72%)
+                LIMITES_CAMINATA.yMin + 4 + Math.random() * 12;
             estado.velocidadCaida = 18;
             cambiarModoPersonaje("cayendo");
             actualizarPosicionDOM();
             return;
         }
 
-        // Si la soltaste muy abajo o a los lados, la ajustamos al cuadro permitido
         estado.x = estado.aterrizajeX;
         estado.y = Math.max(
             LIMITES_CAMINATA.yMin,
@@ -1232,16 +1287,22 @@ function configurarPersonajeCampo() {
         actualizarPosicionDOM();
     }
 
-    // Soportamos tanto arrastrar (mantener presionado y soltar) como click para cargar y otro click para soltar
     contenedor.addEventListener("pointerdown", e => {
         if (e.button !== undefined && e.button !== 0) return;
         e.preventDefault();
         e.stopPropagation();
 
-        // Si ya estaba cargada en modo click-suelto, este nuevo click la suelta en su lugar
         if (estado.modo === "cargada" && estado.modoToggleClick) {
             soltarPersonaje();
             return;
+        }
+
+        // Si estaban abrazados y el usuario agarra el abrazo, se separan primero
+        if (
+            (estado.modo === "abrazando" || estado.modo === "oculto-abrazo") &&
+            typeof estado.alRomperAbrazo === "function"
+        ) {
+            estado.alRomperAbrazo();
         }
 
         estado.inicioCargaMs = performance.now();
@@ -1267,13 +1328,11 @@ function configurarPersonajeCampo() {
             e.clientY - estado.inicioCargaY
         );
 
-        // Si fue un click corto (< 220ms y casi sin arrastrar), queda "pegada" al mouse hasta el próximo click
         if (!estado.modoToggleClick && duracionMs < 220 && distPx < 10) {
             estado.modoToggleClick = true;
             return;
         }
 
-        // Si estaba arrastrando o hizo el segundo click en cualquier parte del campo, la suelta
         soltarPersonaje();
     });
 
@@ -1292,9 +1351,6 @@ function configurarPersonajeCampo() {
         }
     }
 
-    sincronizarLoopPersonaje = actualizarLoopPersonaje;
-    document.addEventListener("visibilitychange", actualizarLoopPersonaje);
-
     function loop(ahora) {
         if (document.hidden || escenaActual !== "campo") {
             rafId = null;
@@ -1304,17 +1360,14 @@ function configurarPersonajeCampo() {
         const dt = Math.min(0.1, (ahora - estado.ultimoTiempo) / 1000);
         estado.ultimoTiempo = ahora;
 
-        // Mientras la estás cargando con el mouse, no corre el reloj de caminar/sentarse
         if (estado.modo === "cargada") {
             rafId = requestAnimationFrame(loop);
             return;
         }
 
-        // Si la soltaste arriba del campo, cae con gravedad hasta aterrizar dentro del cuadro donde camina
         if (estado.modo === "cayendo") {
-            estado.velocidadCaida += 155 * dt; // aceleración de gravedad
+            estado.velocidadCaida += 155 * dt;
             estado.y += estado.velocidadCaida * dt;
-            // También se desliza suavemente en X hacia adentro del cuadro si estaba muy a la orilla
             estado.x += (estado.aterrizajeX - estado.x) * Math.min(1, 8 * dt);
 
             if (estado.y >= estado.aterrizajeY) {
@@ -1329,7 +1382,6 @@ function configurarPersonajeCampo() {
             return;
         }
 
-        // Cuenta regresiva para alternar entre caminar (20s) y sentarse (10s)
         estado.tiempoCambioEstado -= dt;
         estado.tiempoEnModoActual += dt;
 
@@ -1339,21 +1391,24 @@ function configurarPersonajeCampo() {
             } else if (estado.modo === "sentada") {
                 elegirNuevoDestino();
                 cambiarModoPersonaje("caminando");
+            } else if (
+                (estado.modo === "abrazando" || estado.modo === "oculto-abrazo") &&
+                typeof estado.alRomperAbrazo === "function"
+            ) {
+                estado.alRomperAbrazo();
             }
         }
 
         if (estado.modo === "caminando") {
-            // En los últimos 2.4 segundos antes de sentarse, va frenando poco a poco
             const ventanaFrenado = 2.4;
             const estaFrenando = estado.tiempoCambioEstado < ventanaFrenado;
             contenedor.classList.toggle("frenando", estaFrenando);
             contenedor.classList.toggle("caminando", !estaFrenando);
 
-            // Factor de velocidad suave: desacelera al sentarse y acelera suave al levantarse
             let factorVelocidad = 1;
             if (estaFrenando) {
                 const t = Math.max(0, estado.tiempoCambioEstado / ventanaFrenado);
-                factorVelocidad = t * t; // curva suave hasta detenerse en 0
+                factorVelocidad = t * t;
             } else if (estado.tiempoEnModoActual < 1.2) {
                 factorVelocidad = 0.25 + 0.75 * (estado.tiempoEnModoActual / 1.2);
             }
@@ -1369,7 +1424,6 @@ function configurarPersonajeCampo() {
                 estado.x += (dx / dist) * Math.min(paso, dist);
                 estado.y += (dy / dist) * Math.min(paso, dist);
 
-                // Voltea la imagen hacia donde camina (evita girar justo cuando ya casi se detuvo)
                 if (Math.abs(dx) > 0.1 && factorVelocidad > 0.25) {
                     estado.dirX = dx >= 0 ? 1 : -1;
                 }
@@ -1382,6 +1436,117 @@ function configurarPersonajeCampo() {
 
     actualizarPosicionDOM();
     actualizarLoopPersonaje();
+
+    return {
+        estado,
+        cambiarModoPersonaje,
+        elegirNuevoDestino,
+        actualizarPosicionDOM,
+        actualizarLoopPersonaje
+    };
+}
+
+function configurarPersonajeCampo() {
+    const instancias = CONFIG_PERSONAJES
+        .map(cfg => inicializarMuñecoCampo(cfg))
+        .filter(Boolean);
+
+    // Flag de permiso de abrazo: empieza en true y al abrazarse entra en cooldown de 1:30 (90s)
+    let puedeAbrazar = true;
+    let abrazoActivo = false;
+
+    if (instancias.length >= 2) {
+        const [muñecaJ, muñecoS] = instancias;
+
+        // Evitamos que nazcan pegados al inicio para que el primer abrazo ocurra cuando se encuentren
+        while (Math.hypot(muñecaJ.estado.x - muñecoS.estado.x, muñecaJ.estado.y - muñecoS.estado.y) < 16) {
+            muñecoS.estado.x = 14 + Math.random() * 72;
+            muñecoS.estado.y = 56 + Math.random() * 30;
+            muñecoS.actualizarPosicionDOM();
+        }
+
+        function terminarAbrazo() {
+            if (!abrazoActivo) return;
+            abrazoActivo = false;
+
+            // Se separan suavemente a izquierda (J) y derecha (S) y caminan a nuevos destinos
+            const centroX = muñecaJ.estado.x;
+            const centroY = muñecaJ.estado.y;
+
+            muñecaJ.estado.x = Math.max(14, Math.min(86, centroX - 3.5));
+            muñecaJ.estado.y = centroY;
+            muñecaJ.elegirNuevoDestino();
+            muñecaJ.cambiarModoPersonaje("caminando");
+            muñecaJ.actualizarPosicionDOM();
+
+            muñecoS.estado.x = Math.max(14, Math.min(86, centroX + 3.5));
+            muñecoS.estado.y = centroY;
+            muñecoS.elegirNuevoDestino();
+            muñecoS.cambiarModoPersonaje("caminando");
+            muñecoS.actualizarPosicionDOM();
+
+            // Activamos el temporizador de 1 minuto y medio (90 segundos) para volver a habilitar la flag
+            setTimeout(() => {
+                puedeAbrazar = true;
+            }, COOLDOWN_ABRAZO_MS);
+        }
+
+        muñecaJ.estado.alRomperAbrazo = terminarAbrazo;
+        muñecoS.estado.alRomperAbrazo = terminarAbrazo;
+
+        function verificarEncuentroAbrazo() {
+            if (
+                !document.hidden &&
+                escenaActual === "campo" &&
+                puedeAbrazar &&
+                !abrazoActivo
+            ) {
+                const modJ = muñecaJ.estado.modo;
+                const modS = muñecoS.estado.modo;
+                const ambosEnSuelo =
+                    (modJ === "caminando" || modJ === "sentada") &&
+                    (modS === "caminando" || modS === "sentada");
+
+                if (ambosEnSuelo) {
+                    const dx = muñecaJ.estado.x - muñecoS.estado.x;
+                    const dy = (muñecaJ.estado.y - muñecoS.estado.y) * 1.35;
+                    const dist = Math.hypot(dx, dy);
+
+                    if (dist <= DISTANCIA_ACTIVAR_ABRAZO) {
+                        // Se juntaron con la flag activa: consumimos la flag e iniciamos el abrazo
+                        puedeAbrazar = false;
+                        abrazoActivo = true;
+
+                        const midX = (muñecaJ.estado.x + muñecoS.estado.x) / 2;
+                        const midY = (muñecaJ.estado.y + muñecoS.estado.y) / 2;
+
+                        muñecaJ.estado.x = midX;
+                        muñecaJ.estado.y = midY;
+                        muñecoS.estado.x = midX;
+                        muñecoS.estado.y = midY;
+
+                        muñecaJ.cambiarModoPersonaje("abrazando");
+                        muñecoS.cambiarModoPersonaje("oculto-abrazo");
+
+                        muñecaJ.actualizarPosicionDOM();
+                        muñecoS.actualizarPosicionDOM();
+                    }
+                }
+            }
+            requestAnimationFrame(verificarEncuentroAbrazo);
+        }
+
+        requestAnimationFrame(verificarEncuentroAbrazo);
+    }
+
+    const sincronizarTodos = () => {
+        for (const inst of instancias) {
+            inst.actualizarLoopPersonaje();
+        }
+    };
+
+    sincronizarLoopPersonaje = sincronizarTodos;
+    document.addEventListener("visibilitychange", sincronizarTodos);
 }
 
 // --------------------------------------------------------------------------
